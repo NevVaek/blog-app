@@ -23,9 +23,16 @@ authRouter.post("/login/lgin", async (req, res, next) => {
             });
         } else if (matchResult) {
             const accessToken = generateAccessToken({user: req.body.username});
+            res.cookie("access_token", accessToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "strict",
+                maxAge: 3 * 60 * 60 * 1000,
+            });
+
             res.status(200).json({
-                accessToken: accessToken,
                 userId: result.id,
+                message: "Login successful",
             });
         }
     } catch(err) {
@@ -46,5 +53,14 @@ authRouter.post("/register/sinup", async (req, res, next) => {
         next(err);
     }
 });
+
+authRouter.post("/logout", (req, res) => {
+    res.clearCookie("access_token", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+    });
+    res.status(200).json({message: "Logged out successfully"});
+})
 
 export default authRouter;

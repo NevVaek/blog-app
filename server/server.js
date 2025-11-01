@@ -24,7 +24,7 @@ app.use((err, req, res, next) => {
     res.status(500).send("Internal Server Error")
 });
 
-mongoose.connect(`mongodb://localhost:27017/${dbConfig.dbName}`, {useUnifiedTopology: true})
+mongoose.connect(`mongodb://localhost:27017/${dbConfig.dbName}`)
     .then(() => {
         console.log("Connected to database");
     }).catch(() => {
