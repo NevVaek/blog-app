@@ -1,0 +1,20 @@
+POST http://localhost:3000/auth/register/sinup HTTP/1.1
+content-type: application/json
+
+{
+  "username": "yes",
+  "registerPassword": "testing123",
+  "email": "example@testing.com"
+}
+
+###
+
+POST http://localhost:3000/auth/login/lgin HTTP/1.1
+content-type: application/json
+
+{
+  "username": "yes",
+  "password": "testing123"
+}
+
+###

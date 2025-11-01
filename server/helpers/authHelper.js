@@ -1,0 +1,36 @@
+import {v4 as uuidv4} from "uuid";
+import User from "../dbmodels/user.js";
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+
+
+async function authWare(mode, req) {
+    try {
+        if (mode === "r") {
+            return await User.findOne({username: req.body.username});
+        } else if (mode === "w") {
+            const checkedResult = await User.findOne({username: req.body.username});
+            if (checkedResult) {
+                return false;
+            }
+            const salt = await bcrypt.genSalt();
+            const hashedPassword = await bcrypt.hash(req.body.registerPassword, salt);
+            const newUser = new User({
+                id: uuidv4(),
+                username: req.body.username,
+                email: req.body.email,
+                password: hashedPassword,
+                joined: new Date(),
+            });
+
+            await newUser.save();
+            return true;
+        } else {
+            throw new Error(`Unknown mode ${mode}`);
+        }
+    } catch(err) {
+        throw err;
+    }
+}
+
+export default authWare
