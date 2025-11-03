@@ -24,6 +24,8 @@ app.use((err, req, res, next) => {
     res.status(500).send("Internal Server Error")
 });
 
+app.use("/uploads", express.static("../uploads"))
+
 mongoose.connect(`mongodb://localhost:27017/${dbConfig.dbName}`)
     .then(() => {
         console.log("Connected to database");

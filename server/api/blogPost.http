@@ -1,0 +1,27 @@
+POST http://localhost:3000/create/new HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMTczNTc0LCJleHAiOjE3NjIxNzUzNzR9.C8M4SgAjmrQJJoncmQZf5AW800z-Bm7UvzDaFht0Vi0
+Content-Type: application/json
+
+{
+    "blogName": "newblog"
+}
+
+###
+
+POST http://localhost:3000/newblog/posts/new HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMTczNTc0LCJleHAiOjE3NjIxNzUzNzR9.C8M4SgAjmrQJJoncmQZf5AW800z-Bm7UvzDaFht0Vi0
+Content-Type: application/json
+
+{
+"title": "Third post",
+"body": "Body o ff"
+}
+
+
+###
+GET http://localhost:3000/newblog/posts
+
+###
+
+###
+GET http://localhost:3000/newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16

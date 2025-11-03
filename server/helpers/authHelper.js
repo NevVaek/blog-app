@@ -1,6 +1,5 @@
 import {v4 as uuidv4} from "uuid";
 import User from "../dbmodels/user.js";
-import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
 
@@ -32,5 +31,18 @@ async function authWare(mode, req) {
         throw err;
     }
 }
+
+export async function fetchUserId(username) {
+    try {
+        const result = await User.findOne({username: username});
+        if (!result) {
+            return false;
+        }
+        return result.id;
+    } catch(err) {
+        throw err;
+    }
+}
+
 
 export default authWare

@@ -2,6 +2,7 @@ import {Router} from "express";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import authWare from "../helpers/authHelper.js"
+import {fetchUserId} from "../helpers/authHelper.js";
 import {generateAccessToken} from "../helpers/tokenHelper.js";
 import bcrypt from "bcrypt";
 
@@ -22,7 +23,8 @@ authRouter.post("/login/lgin", async (req, res, next) => {
                 message: "Wrong username or password"
             });
         } else if (matchResult) {
-            const accessToken = generateAccessToken({user: req.body.username});
+            const userId = await fetchUserId(req.body.username);
+            const accessToken = generateAccessToken({id: userId, username: req.body.username});
             res.cookie("access_token", accessToken, {
                 httpOnly: true,
                 secure: true,

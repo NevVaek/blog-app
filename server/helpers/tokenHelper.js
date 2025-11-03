@@ -21,12 +21,12 @@ export function validateToken(req, res, next) {
             req.user = user;
             next();
         }
-    })
+    });
 }
 
-export function generateAccessToken(username) {
+export function generateAccessToken(userInfo) {
     return jwt.sign(
-        username, process.env.ACCESS_TOKEN_SECRET, {
+        userInfo, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: "1800s",
         }
     );
