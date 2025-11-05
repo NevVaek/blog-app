@@ -1,6 +1,7 @@
 import {Router} from "express";
 import {validateToken} from "../helpers/tokenHelper.js";
 import {postWare, blogWare} from "../helpers/postHelper.js";
+import {permissionChecker} from"../helpers/authHelper.js";
 import {uploadBanner, uploadPostImages} from "../helpers/uploadHelper.js";
 
 const blogRouter = Router();
@@ -9,7 +10,7 @@ blogRouter.get("/:blogName/posts", async(req, res, next) => {
     try {
         const postResult = await postWare("rAll", req);
         const blogResult = await blogWare("r", req)
-        if (!postResult) {
+        if (!blogResult) {
             return res.status(404).json({
                 message: `Couldn't find blog ${req.params.blogName}. It exists not`
             });
@@ -45,11 +46,13 @@ blogRouter.get("/:blogName/posts/:postId", async(req, res, next) => {
     }
 });
 
-blogRouter.post("/:blogName/posts/new", validateToken, uploadPostImages.array("images", 5), async(req, res, next) => {
+blogRouter.post("/:blogName/posts/new", validateToken, permissionChecker("blog"), uploadPostImages.array("images", 5), async(req, res, next) => {
     try {
         const result = await postWare("w", req);
         if (!result) {
-            throw new Error("Couldn't create new post");
+            return res.status(404).json({
+                message: "Unknown blog name"
+            })
         } else {
             res.status(201).json({
                 message: "Post successful"
@@ -75,6 +78,42 @@ blogRouter.post("/create/new", validateToken, uploadBanner.single("banner"), asy
         next(err);
     }
 });
+
+blogRouter.patch("/create/update/:blogName", validateToken, permissionChecker("blog"), uploadBanner.single("banner"), async (req, res, next) => {
+    try {
+        const result = await blogWare("a", req)
+        if (!result) {
+            return res.status(404).json({
+                message: "Unknown blog name"
+            });
+        }
+        res.status(200).json({
+            message: "Post updated successfully"
+        });
+    } catch(err) {
+        next(err);
+    }
+});
+
+blogRouter.patch("/:blogName/posts/:postId/edit", validateToken, permissionChecker("post"), async (req, res, next) => {
+    try {
+        const result = await postWare("a", req);
+        if (result === "noBlog") {
+            return res.status(404).json({
+                message: `Couldn't find blog ${req.params.blogName}. It exists not`
+            });
+        } else if (result === "noPost") {
+            return res.status(404).json({
+                message: `Couldn't find specified post in ${req.params.blogName}.`
+            });
+        }
+        res.status(200).json({
+            message: "Post updated successfully"
+        });
+    } catch(err) {
+        next(err);
+    }
+})
 
 
 export default blogRouter;

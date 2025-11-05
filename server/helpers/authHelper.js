@@ -1,5 +1,6 @@
 import {v4 as uuidv4} from "uuid";
 import User from "../dbmodels/user.js";
+import {blogModel, postModel} from "../dbModels/blogPost.js";
 import bcrypt from "bcrypt";
 
 
@@ -41,6 +42,44 @@ export async function fetchUserId(username) {
         return result.id;
     } catch(err) {
         throw err;
+    }
+}
+
+export function permissionChecker(mode) {
+
+    return async (req, res, next) => {
+        try {
+            const blog = await blogModel.findOne({blogName: req.params.blogName});
+            if (!blog) {
+                return res.status(404).json({
+                    message: `Couldn't find blog ${req.params.blogName}. It exists not`
+                });
+            }
+            if (mode === "blog") {
+                if (blog.ownerId !== req.user.id) {
+                    return res.status(403).json({
+                        message: "Access denied"
+                    });
+                }
+            }
+            if (mode === "post") {
+                const post = await postModel.findOne({id: req.params.postId});
+                if (!post) {
+                    return res.status(404).json({
+                        message: "Couldn't find post"
+                    });
+                }
+                if (req.user.id !== blog.ownerId && req.user.id !== post.authorId) {
+                    return res.status(403).json({
+                        message: "Access denied"
+                    });
+                }
+            }
+            next();
+
+        } catch(err) {
+            next(err);
+        }
     }
 }
 

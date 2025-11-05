@@ -37,6 +37,22 @@ export async function postWare(mode, req) {
             });
             await newPost.save();
             return true;
+        } else if (mode === "a") {
+            const blogId = await searchBlogId(req.params.blogName);
+            if (!blogId) {
+                return "noBlog";
+            }
+            const UpdatedFields = req.body;
+
+            const post = await postModel.findOneAndUpdate(
+                {id: req.params.postId},
+                {$set: UpdatedFields},
+                {new: true, runValidators: true}
+            );
+            if (!post) {
+                return "noPost";
+            }
+            return true;
         } else {
             throw new Error("Unknown mode specified");
         }
@@ -65,6 +81,22 @@ export async function blogWare(mode, req) {
                 banner: req.file ? `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}` : null,
             });
             await newBlog.save();
+            return true;
+        } else if (mode === "a") {
+            const blogId = await searchBlogId(req.params.blogName);
+            if (!blogId) {
+                return false;
+            }
+            const updatedFields = req.body;
+            if (req.file) {
+                updatedFields.image = `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}`
+            }
+
+            await blogModel.findOneAndUpdate(
+                {id: blogId},
+                {$set: updatedFields},
+                {runValidators: true}
+            );
             return true;
         } else {
             throw new Error("Unknown mode specified");

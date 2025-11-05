@@ -9,12 +9,43 @@ content-type: application/json
 
 ###
 
+POST http://localhost:3000/auth/register/sinup HTTP/1.1
+content-type: application/json
+
+{
+  "username": "yes2",
+  "registerPassword": "password12",
+  "email": "example2@testing.com"
+}
+
+###
+
 POST http://localhost:3000/auth/login/lgin HTTP/1.1
 content-type: application/json
 
 {
   "username": "yes",
   "password": "testing123"
+}
+
+###
+
+POST http://localhost:3000/auth/login/lgin HTTP/1.1
+content-type: application/json
+
+{
+  "username": "yes",
+  "password": "wrongpassword123"
+}
+
+###
+
+POST http://localhost:3000/auth/login/lgin HTTP/1.1
+content-type: application/json
+
+{
+  "username": "yes2",
+  "password": "password12"
 }
 
 ###

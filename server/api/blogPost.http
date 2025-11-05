@@ -1,5 +1,5 @@
 POST http://localhost:3000/create/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMTczNTc0LCJleHAiOjE3NjIxNzUzNzR9.C8M4SgAjmrQJJoncmQZf5AW800z-Bm7UvzDaFht0Vi0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMzQxMzgzLCJleHAiOjE3NjIzNDMxODN9.Q59R_tH39YTpBVxm8t7km8U8fKpvTCJa2xoXXYp-P4E
 Content-Type: application/json
 
 {
@@ -9,11 +9,11 @@ Content-Type: application/json
 ###
 
 POST http://localhost:3000/newblog/posts/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMTczNTc0LCJleHAiOjE3NjIxNzUzNzR9.C8M4SgAjmrQJJoncmQZf5AW800z-Bm7UvzDaFht0Vi0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMzQxMzgzLCJleHAiOjE3NjIzNDMxODN9.Q59R_tH39YTpBVxm8t7km8U8fKpvTCJa2xoXXYp-P4E
 Content-Type: application/json
 
 {
-"title": "Third post",
+"title": "Fourth post",
 "body": "Body o ff"
 }
 
@@ -25,3 +25,25 @@ GET http://localhost:3000/newblog/posts
 
 ###
 GET http://localhost:3000/newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16
+
+###
+
+PATCH http://localhost:3000/create/update/New newblog
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMzQxMzgzLCJleHAiOjE3NjIzNDMxODN9.Q59R_tH39YTpBVxm8t7km8U8fKpvTCJa2xoXXYp-P4E
+Content-Type: application/json
+
+{
+  "blogName": "newblog"
+}
+
+###
+
+PATCH http://localhost:3000/newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16/edit
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMzQxMzgzLCJleHAiOjE3NjIzNDMxODN9.Q59R_tH39YTpBVxm8t7km8U8fKpvTCJa2xoXXYp-P4E
+Content-Type: application/json
+
+{
+  "body": "New body o ff"
+}
+
+###
