@@ -6,6 +6,7 @@ const blogSchema = mongoose.Schema({
     blogName: {type: String, required: true},
     followers: {type: Number, default: 0, required: true},
     banner: {type: String, default: null},
+    blogSlug: {type: String, required: true},
 }, {timestamps: true});
 
 const postSchema = mongoose.Schema({
@@ -18,6 +19,6 @@ const postSchema = mongoose.Schema({
     stars: {type: Number, default: 0, required: true}
 }, {timestamps: true});
 
-export const blogModel = mongoose.model("Blog", blogSchema);
-export const postModel = mongoose.model("Post", postSchema);
+export const blogModel = mongoose.models.Blog || mongoose.model("Blog", blogSchema);
+export const postModel = mongoose.models.Post || mongoose.model("Post", postSchema);
 

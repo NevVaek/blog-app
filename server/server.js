@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import {dbConfig} from "./db-config.js";
 import authRouter from "./routers/authentication.js";
 import blogRouter from "./routers/blogposts.js";
+import migrateBlogSlugs from "./scripts/migrateBlogSlugs.js";
 
 const app = express();
 app.use(cors());
@@ -29,6 +30,7 @@ app.use("/uploads", express.static("../uploads"))
 mongoose.connect(`mongodb://localhost:27017/${dbConfig.dbName}`)
     .then(() => {
         console.log("Connected to database");
+        migrateBlogSlugs();
     }).catch(() => {
         console.log("Connection to database failed");
 });

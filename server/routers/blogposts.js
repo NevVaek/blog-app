@@ -4,19 +4,20 @@ import {postWare, blogWare} from "../helpers/postHelper.js";
 import {permissionChecker} from"../helpers/authHelper.js";
 import {uploadBanner, uploadPostImages} from "../helpers/uploadHelper.js";
 
+
 const blogRouter = Router();
 
-blogRouter.get("/:blogName/posts", async(req, res, next) => {
+blogRouter.get("/:blogSlug/posts", async(req, res, next) => {
     try {
         const postResult = await postWare("rAll", req);
         const blogResult = await blogWare("r", req)
         if (!blogResult) {
             return res.status(404).json({
-                message: `Couldn't find blog ${req.params.blogName}. It exists not`
+                message: `Couldn't find blog ${req.params.blogSlug}. It exists not`
             });
         }
         res.status(200).json({
-            blogName: req.params.blogName,
+            blog: blogResult,
             postCount: postResult.length,
             posts: postResult,
         });
@@ -25,20 +26,21 @@ blogRouter.get("/:blogName/posts", async(req, res, next) => {
     }
 });
 
-blogRouter.get("/:blogName/posts/:postId", async(req, res, next) => {
+blogRouter.get("/:blogSlug/posts/:postId", async(req, res, next) => {
     try {
         const result = await postWare("rOne", req);
+        const result2 = await blogWare("r", req);
         if (result === "noBlog") {
             return res.status(404).json({
-                message: `Couldn't find blog ${req.params.blogName}. It exists not`
+                message: `Couldn't find blog ${req.params.blogSlug}. It exists not`
             });
         } else if (result === "noPost") {
             return res.status(404).json({
-                message: `Couldn't find specified post in ${req.params.blogName}.`
+                message: `Couldn't find specified post in ${req.params.blogSlug}.`
             });
         }
         res.status(200).json({
-            blogName: req.params.blogName,
+            blog: result2,
             post: result,
         });
     } catch (err) {
@@ -46,7 +48,7 @@ blogRouter.get("/:blogName/posts/:postId", async(req, res, next) => {
     }
 });
 
-blogRouter.post("/:blogName/posts/new", validateToken, permissionChecker("blog"), uploadPostImages.array("images", 5), async(req, res, next) => {
+blogRouter.post("/:blogSlug/posts/new", validateToken, permissionChecker("blog"), uploadPostImages.array("images", 5), async(req, res, next) => {
     try {
         const result = await postWare("w", req);
         if (!result) {
@@ -66,9 +68,13 @@ blogRouter.post("/:blogName/posts/new", validateToken, permissionChecker("blog")
 blogRouter.post("/create/new", validateToken, uploadBanner.single("banner"), async (req, res, next) => {
     try {
         const result = await blogWare("w", req);
-        if (!result) {
+        if (result === "exists") {
             return res.status(409).json({
                 message: "Blog name already taken"
+            });
+        } else if (result === "forbidden") {
+            return res.status(400).json({
+                message: "Blog name can only contain letters, numbers, spaces, underscores, and hyphens."
             });
         }
         res.status(201).json({
@@ -79,12 +85,16 @@ blogRouter.post("/create/new", validateToken, uploadBanner.single("banner"), asy
     }
 });
 
-blogRouter.patch("/create/update/:blogName", validateToken, permissionChecker("blog"), uploadBanner.single("banner"), async (req, res, next) => {
+blogRouter.patch("/create/update/:blogSlug", validateToken, permissionChecker("blog"), uploadBanner.single("banner"), async (req, res, next) => {
     try {
         const result = await blogWare("a", req)
-        if (!result) {
+        if (result === "noBlog") {
             return res.status(404).json({
                 message: "Unknown blog name"
+            });
+        } else if (result === "forbidden") {
+            return res.status(400).json({
+                message: "Blog name can only contain letters, numbers, spaces, underscores, and hyphens."
             });
         }
         res.status(200).json({
@@ -95,16 +105,16 @@ blogRouter.patch("/create/update/:blogName", validateToken, permissionChecker("b
     }
 });
 
-blogRouter.patch("/:blogName/posts/:postId/edit", validateToken, permissionChecker("post"), async (req, res, next) => {
+blogRouter.patch("/:blogSlug/posts/:postId/edit", validateToken, permissionChecker("post"), async (req, res, next) => {
     try {
         const result = await postWare("a", req);
         if (result === "noBlog") {
             return res.status(404).json({
-                message: `Couldn't find blog ${req.params.blogName}. It exists not`
+                message: `Couldn't find blog. It doesn't exist.`
             });
         } else if (result === "noPost") {
             return res.status(404).json({
-                message: `Couldn't find specified post in ${req.params.blogName}.`
+                message: `Couldn't find specified post.`
             });
         }
         res.status(200).json({

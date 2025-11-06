@@ -1,15 +1,15 @@
 POST http://localhost:3000/create/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMzQxMzgzLCJleHAiOjE3NjIzNDMxODN9.Q59R_tH39YTpBVxm8t7km8U8fKpvTCJa2xoXXYp-P4E
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyNDMwOTc2LCJleHAiOjE3NjI0MzI3NzZ9.7dOSia0d7HaW4UmQKF9H3V7n58YL4NRCWAed5wxCqyk
 Content-Type: application/json
 
 {
-    "blogName": "newblog"
+    "blogName": "@newblog"
 }
 
 ###
 
 POST http://localhost:3000/newblog/posts/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMzQxMzgzLCJleHAiOjE3NjIzNDMxODN9.Q59R_tH39YTpBVxm8t7km8U8fKpvTCJa2xoXXYp-P4E
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyNDMwOTc2LCJleHAiOjE3NjI0MzI3NzZ9.7dOSia0d7HaW4UmQKF9H3V7n58YL4NRCWAed5wxCqyk
 Content-Type: application/json
 
 {
@@ -19,31 +19,31 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:3000/newblog/posts
+GET http://localhost:3000/brand-new-newblog/posts
 
 ###
 
 ###
-GET http://localhost:3000/newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16
+GET http://localhost:3000/brand-new-newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16
 
 ###
 
-PATCH http://localhost:3000/create/update/New newblog
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMzQxMzgzLCJleHAiOjE3NjIzNDMxODN9.Q59R_tH39YTpBVxm8t7km8U8fKpvTCJa2xoXXYp-P4E
+PATCH http://localhost:3000/create/update/newblog
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyNDMwOTc2LCJleHAiOjE3NjI0MzI3NzZ9.7dOSia0d7HaW4UmQKF9H3V7n58YL4NRCWAed5wxCqyk
 Content-Type: application/json
 
 {
-  "blogName": "newblog"
+  "blogName": "Brand new newblog"
 }
 
 ###
 
-PATCH http://localhost:3000/newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16/edit
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyMzQxMzgzLCJleHAiOjE3NjIzNDMxODN9.Q59R_tH39YTpBVxm8t7km8U8fKpvTCJa2xoXXYp-P4E
+PATCH http://localhost:3000/brand-new-newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16/edit
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyNDMwOTc2LCJleHAiOjE3NjI0MzI3NzZ9.7dOSia0d7HaW4UmQKF9H3V7n58YL4NRCWAed5wxCqyk
 Content-Type: application/json
 
 {
-  "body": "New body o ff"
+  "body": " body o ff"
 }
 
 ###

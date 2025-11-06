@@ -49,10 +49,10 @@ export function permissionChecker(mode) {
 
     return async (req, res, next) => {
         try {
-            const blog = await blogModel.findOne({blogName: req.params.blogName});
+            const blog = await blogModel.findOne({blogSlug: req.params.blogSlug});
             if (!blog) {
                 return res.status(404).json({
-                    message: `Couldn't find blog ${req.params.blogName}. It exists not`
+                    message: `Couldn't find blog. It dosen't exist`
                 });
             }
             if (mode === "blog") {
