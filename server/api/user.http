@@ -54,3 +54,15 @@ POST http://localhost:3000/auth/logout HTTP/1.1
 content-type: application/json
 
 ###
+
+PATCH http://localhost:3000/account/update/me HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsImlhdCI6MTc2MjU3NjI0NywiZXhwIjoxNzYyNTc4MDQ3fQ._NREJZlFBZQ26-I1z5VnUh-FeSKArRpj_auRQ42LbjI
+Content-Type: application/json
+
+{
+  "username": "yes",
+  "password": "testing1234",
+  "id": "ikhksdf"
+}
+
+###

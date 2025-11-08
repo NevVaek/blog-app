@@ -8,6 +8,8 @@ async function authWare(mode, req) {
     try {
         if (mode === "r") {
             return await User.findOne({username: req.body.username});
+        } else if (mode === "rId") {
+            return await User.findOne({id: req.body.id});
         } else if (mode === "w") {
             const checkedResult = await User.findOne({username: req.body.username});
             if (checkedResult) {
@@ -24,6 +26,33 @@ async function authWare(mode, req) {
             });
 
             await newUser.save();
+            return true;
+        } else if (mode === "a") {
+            const allowed = ["username", "email", "password"];
+            const updateFields = {};
+
+            for (const key of allowed) {
+                if (req.body[key] !== undefined) updateFields[key] = req.body[key];
+            }
+
+            if (Object.keys(updateFields).length === 0) {
+                return false;
+            }
+
+            if (updateFields.password) {
+                const salt = await bcrypt.genSalt();
+                updateFields.password = await bcrypt.hash(updateFields.password, salt);
+            }
+
+            if (req.file) {
+                updateFields.icon = `${req.protocol}://${req.get("host")}/uploads/images/usericons/${req.file.filename}`
+            }
+
+            await User.findOneAndUpdate(
+                {id: req.user.id},
+                {$set: updateFields},
+                {runValidators: true}
+            );
             return true;
         } else {
             throw new Error(`Unknown mode ${mode}`);

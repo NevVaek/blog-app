@@ -43,11 +43,26 @@ export async function postWare(mode, req) {
             if (!blogId) {
                 return "noBlog";
             }
-            const UpdatedFields = req.body;
+            const allowed = ["title", "body", "images"]
+            const updateFields = {}
+
+            for (const key of allowed) {
+                if (req.body[key] !== undefined) updateFields[key] = req.body[key];
+            }
+
+            if (Object.keys(updateFields).length === 0) {
+                return "empty";
+            }
+
+            if (req.file) {
+                updateFields.images = req.files.map(file => {
+                `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+                });
+            }
 
             const post = await postModel.findOneAndUpdate(
                 {id: req.params.postId},
-                {$set: UpdatedFields},
+                {$set: updateFields},
                 {new: true, runValidators: true}
             );
             if (!post) {
@@ -93,20 +108,36 @@ export async function blogWare(mode, req) {
             if (!blogId) {
                 return "noBlog";
             }
-            const updatedFields = req.body;
-            if (req.file) {
-                updatedFields.image = `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}`
+
+            const allowed = ["blogName", "banner"];
+            const updateFields = {}
+
+            for (const key of allowed) {
+                if (req.body[key] !== undefined) updateFields[key] = req.body[key];
             }
-            if (req.body.blogName) {
-                if (!checkString(req.body.blogName)) {
+
+            if (Object.keys(updateFields).length === 0) {
+                return "empty";
+            }
+
+            if (req.file) {
+                updateFields.banner = `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}`
+            }
+            if (updateFields.blogName) {
+                if (!checkString(updateFields.blogName)) {
                     return "forbidden";
                 }
-                updatedFields.blogSlug = slugify(req.body.blogName, { lower: true });
+                 const checkedResult = await blogModel.findOne({blogName: updateFields.blogName});
+                if (checkedResult) {
+                    return "exists";
+                }
+
+                updateFields.blogSlug = slugify(updateFields.blogName, { lower: true });
             }
 
             await blogModel.findOneAndUpdate(
                 {id: blogId},
-                {$set: updatedFields},
+                {$set: updateFields},
                 {runValidators: true}
             );
             return true;
@@ -150,5 +181,7 @@ function checkString(name) {
 
     return regex.test(name)
 }
+
+
 
 

@@ -92,9 +92,17 @@ blogRouter.patch("/create/update/:blogSlug", validateToken, permissionChecker("b
             return res.status(404).json({
                 message: "Unknown blog name"
             });
+        } else if (result === "empty") {
+            return res.status(400).json({
+                message: "Form empty"
+            })
         } else if (result === "forbidden") {
             return res.status(400).json({
                 message: "Blog name can only contain letters, numbers, spaces, underscores, and hyphens."
+            });
+        } else if (result === "exists") {
+            return res.status(409).json({
+                message: "Blog name already taken"
             });
         }
         res.status(200).json({

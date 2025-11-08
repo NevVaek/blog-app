@@ -24,7 +24,7 @@ authRouter.post("/login/lgin", async (req, res, next) => {
             });
         } else if (matchResult) {
             const userId = await fetchUserId(req.body.username);
-            const accessToken = generateAccessToken({id: userId, username: req.body.username});
+            const accessToken = generateAccessToken({id: userId});
             res.cookie("access_token", accessToken, {
                 httpOnly: true,
                 secure: true,
@@ -63,6 +63,7 @@ authRouter.post("/logout", (req, res) => {
         sameSite: "strict",
     });
     res.status(200).json({message: "Logged out successfully"});
-})
+});
+
 
 export default authRouter;

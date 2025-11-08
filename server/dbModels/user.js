@@ -9,9 +9,9 @@ const userSchema = mongoose.Schema({
     email: {type: String, required: true},
     password: {type: String, required: true},
     joined: {type: Date, required: true},
-    icon: {type: String, default: `${process.env.BASE_URL}/uploads/images/userIcons/default-icon.jpeg` ,required: true}
+    icon: {type: String, default: `${process.env.BASE_URL}/uploads/images/usericons/default-icon.jpeg` ,required: true}
 });
 
-const userModel = mongoose.model("User", userSchema);
+const userModel = mongoose.models.Blog || mongoose.model("User", userSchema);
 
 export default userModel

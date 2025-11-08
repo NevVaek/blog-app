@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import {dbConfig} from "./db-config.js";
 import authRouter from "./routers/authentication.js";
 import blogRouter from "./routers/blogposts.js";
+import accountRouter from "./routers/accounts.js";
 import migrateBlogSlugs from "./scripts/migrateBlogSlugs.js";
 
 const app = express();
@@ -20,6 +21,8 @@ app.use(cors({
 
 app.use("/auth", authRouter);
 app.use("/", blogRouter);
+app.use("/account/", accountRouter);
+
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send("Internal Server Error")

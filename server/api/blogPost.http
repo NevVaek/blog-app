@@ -24,12 +24,12 @@ GET http://localhost:3000/brand-new-newblog/posts
 ###
 
 ###
-GET http://localhost:3000/brand-new-newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16
+GET http://localhost:3000/brand-brand-new-newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16
 
 ###
 
-PATCH http://localhost:3000/create/update/newblog
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyNDMwOTc2LCJleHAiOjE3NjI0MzI3NzZ9.7dOSia0d7HaW4UmQKF9H3V7n58YL4NRCWAed5wxCqyk
+PATCH http://localhost:3000/create/update/brand-brand-new-newblog
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsImlhdCI6MTc2MjU3NDQxMiwiZXhwIjoxNzYyNTc2MjEyfQ.9Hq8htTbNWMuTfzlK2Ci9zW7ZOnBp6FixtipG1kU868
 Content-Type: application/json
 
 {
@@ -38,12 +38,13 @@ Content-Type: application/json
 
 ###
 
-PATCH http://localhost:3000/brand-new-newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16/edit
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyNDMwOTc2LCJleHAiOjE3NjI0MzI3NzZ9.7dOSia0d7HaW4UmQKF9H3V7n58YL4NRCWAed5wxCqyk
+PATCH http://localhost:3000/brand-brand-new-newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16/edit
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsImlhdCI6MTc2MjU3NjI0NywiZXhwIjoxNzYyNTc4MDQ3fQ._NREJZlFBZQ26-I1z5VnUh-FeSKArRpj_auRQ42LbjI
 Content-Type: application/json
 
 {
-  "body": " body o ff"
+  "body": " Updated body oo ff",
+  "id": "0"
 }
 
 ###
