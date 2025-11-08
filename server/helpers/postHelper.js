@@ -1,6 +1,7 @@
 import {postModel, blogModel} from "../dbModels/blogPost.js";
 import {v4 as uuidv4} from "uuid";
 import slugify from "slugify";
+import fs from "fs";
 
 export async function postWare(mode, req) {
     try {
@@ -33,7 +34,7 @@ export async function postWare(mode, req) {
                 title: req.body.title,
                 body: req.body.body,
                 images: req.files ? req.files.map(file => {
-                `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+                `${req.protocol}://${req.get("host")}/uploads/images/posts/${file.filename}`
                 }) : []
             });
             await newPost.save();
@@ -43,31 +44,44 @@ export async function postWare(mode, req) {
             if (!blogId) {
                 return "noBlog";
             }
-            const allowed = ["title", "body", "images"]
-            const updateFields = {}
-
-            for (const key of allowed) {
-                if (req.body[key] !== undefined) updateFields[key] = req.body[key];
-            }
-
-            if (Object.keys(updateFields).length === 0) {
-                return "empty";
-            }
-
-            if (req.file) {
-                updateFields.images = req.files.map(file => {
-                `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
-                });
-            }
-
-            const post = await postModel.findOneAndUpdate(
-                {id: req.params.postId},
-                {$set: updateFields},
-                {new: true, runValidators: true}
-            );
+            const post = await postModel.findOne({id: req.params.postId});
             if (!post) {
                 return "noPost";
             }
+
+            const allowed = ["title", "body", "images"]
+
+            for (const key of allowed) {
+                if (req.body[key] !== undefined) post[key] = req.body[key];
+            }
+
+            if (req.body.deletedImages) {
+                const toDelete = JSON.parse(req.body.deletedImages);
+                post.images = post.images.filter(img => !toDelete.includes(img));
+
+                await Promise.all(toDelete.map(async (filename) => {
+                    try {
+                        await fs.unlink(`uploads/images/posts/${filename}`, err => {
+                            throw new Error()
+                        });
+                    } catch (err) {
+                        console.error("Failed to delete", filename);
+                        throw new Error("Bad delete");
+                    }
+                }));
+            }
+
+            if (req.files && req.files.length > 0) {
+
+                const newImages = req.files.map(file =>
+                    `${req.protocol}://${req.get("host")}/uploads/images/posts/${file.filename}`
+                );
+                post.images = [...post.images, ...newImages];
+            }
+
+            if (post.images.length > 5) return "exceedMax";
+            await post.save();
+
             return true;
         } else {
             throw new Error("Unknown mode specified");

@@ -124,6 +124,10 @@ blogRouter.patch("/:blogSlug/posts/:postId/edit", validateToken, permissionCheck
             return res.status(404).json({
                 message: `Couldn't find specified post.`
             });
+        } else if (result === "exceedMax") {
+            return res.status(400).json({
+                message: "Number of uploaded files exceed limit"
+            });
         }
         res.status(200).json({
             message: "Post updated successfully"
