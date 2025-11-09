@@ -1,9 +1,9 @@
 POST http://localhost:3000/create/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyNDMwOTc2LCJleHAiOjE3NjI0MzI3NzZ9.7dOSia0d7HaW4UmQKF9H3V7n58YL4NRCWAed5wxCqyk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsImlhdCI6MTc2MjY3MjM1NSwiZXhwIjoxNzYyNjc0MTU1fQ.7-sp74hMI73FLTH38GeRYtxAAB-1rwUkw3LKqQ2M9O0
 Content-Type: application/json
 
 {
-    "blogName": "@newblog"
+    "blogName": "yee newblog"
 }
 
 ###
@@ -19,7 +19,7 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:3000/brand-new-newblog/posts
+GET http://localhost:3000/yee-newblog/posts
 
 ###
 
@@ -39,7 +39,7 @@ Content-Type: application/json
 ###
 
 PATCH http://localhost:3000/brand-brand-new-newblog/posts/fe9a689e-87bc-4586-9071-03cddeebaa16/edit
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsImlhdCI6MTc2MjU3NjI0NywiZXhwIjoxNzYyNTc4MDQ3fQ._NREJZlFBZQ26-I1z5VnUh-FeSKArRpj_auRQ42LbjI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMGM4YmI3LWNmMDUtNDA3NC04Yjc0LWFmOTVlYzdmZTA1ZiIsImlhdCI6MTc2MjY3MDEwNCwiZXhwIjoxNzYyNjcxOTA0fQ.dWlhHJXkfFWmU1VztQTgMxrkRYFciTvNXGPPSYV1FNk
 Content-Type: application/json
 
 {
@@ -48,3 +48,13 @@ Content-Type: application/json
 }
 
 ###
+
+DELETE http://localhost:3000/brand-brand-new-newblog/posts/162c6ca0-4729-4237-99fd-0b9c500b3617/delete
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMGM4YmI3LWNmMDUtNDA3NC04Yjc0LWFmOTVlYzdmZTA1ZiIsImlhdCI6MTc2MjY3MDEwNCwiZXhwIjoxNzYyNjcxOTA0fQ.dWlhHJXkfFWmU1VztQTgMxrkRYFciTvNXGPPSYV1FNk
+Content-Type: application/json
+
+###
+
+DELETE http://localhost:3000/create/delete/yee-newblog
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsImlhdCI6MTc2MjY3MjM1NSwiZXhwIjoxNzYyNjc0MTU1fQ.7-sp74hMI73FLTH38GeRYtxAAB-1rwUkw3LKqQ2M9O0
+Content-Type: application/json

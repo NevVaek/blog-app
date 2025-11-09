@@ -27,6 +27,10 @@ export async function postWare(mode, req) {
                 return false;
             }
 
+            if (req.files) {
+                if (req.files.length > 5) return "exceedMax";
+            }
+
             const newPost = new postModel({
                 id: uuidv4(),
                 authorId: req.user.id,
@@ -82,6 +86,26 @@ export async function postWare(mode, req) {
             if (post.images.length > 5) return "exceedMax";
             await post.save();
 
+            return true;
+        } else if (mode === "d") {
+            const blog = await blogModel.findOne({blogSlug: req.params.blogSlug});
+            if (!blog) {
+                return "noBlog";
+            }
+            const post = await postModel.findOneAndDelete({id: req.params.postId});
+            if (!post) {
+                return "noPost";
+            }
+
+            if (post.images && post.images.length > 0) {
+                for (const imgUrl of post.images) {
+                    const filename = imgUrl.split("/").pop();
+                    fs.unlink(`uploads/images/posts/${filename}`, err => {
+                        console.error("Failed to delete", filename);
+                        throw new Error("Bad delete");
+                    });
+                }
+            }
             return true;
         } else {
             throw new Error("Unknown mode specified");
@@ -155,6 +179,36 @@ export async function blogWare(mode, req) {
                 {runValidators: true}
             );
             return true;
+        } else if (mode === "d") {
+
+            const blog = await blogModel.findOneAndDelete({blogSlug: req.params.blogSlug}, {});
+            if (!blog) {
+                return "noBlog";
+            }
+
+            if (blog.banner) {
+             await fs.promises.unlink(`uploads/images/banners/${blog.banner.split("/").pop()}`);
+            }
+
+            const posts = await postModel.find({blogId: blog.id});
+            if (posts.length) {
+             for (const post of posts) {
+                 if (post.images && post.images.length > 0) {
+                     await Promise.allSettled(
+                         post.images.map(imgUrl => {
+                             const filename = imgUrl.split("/").pop();
+                             return fs.promises.unlink(`uploads/images/posts/${filename}`)
+                         })
+                     );
+
+                 }
+             }
+            }
+
+            await postModel.deleteMany({blogId: blog.id});
+
+            return true;
+
         } else {
             throw new Error("Unknown mode specified");
         }

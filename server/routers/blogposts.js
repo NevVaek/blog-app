@@ -137,5 +137,42 @@ blogRouter.patch("/:blogSlug/posts/:postId/edit", validateToken, permissionCheck
     }
 })
 
+blogRouter.delete("/:create/delete/:blogSlug", validateToken, permissionChecker("blog"), async (req, res, next) => {
+    try {
+        const result = await blogWare("d", req);
+
+        if (result === "noBlog") {
+            res.status(404).json({
+                message: "Unknown blog name"
+            });
+        }
+        res.status(200).json({
+            message: "Blog deleted successfully"
+        })
+    } catch (err) {
+        next(err);
+    }
+})
+
+blogRouter.delete("/:blogSlug/posts/:postId/delete", validateToken, permissionChecker("post"), async (req, res, next) => {
+    try {
+        const result = await postWare("d", req);
+        if (result === "noBlog") {
+            return res.status(404).json({
+                message: "Couldn't find blog. It doesn't exist."
+            });
+        } else if (result === "noPost") {
+            return res.status(404).json({
+                message: "Couldn't find specified post"
+            });
+        }
+
+        res.status(200).json({
+            message: "Post deleted successfully"
+        });
+    } catch(err) {
+        next(err);
+    }
+});
 
 export default blogRouter;
