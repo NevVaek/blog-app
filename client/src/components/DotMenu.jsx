@@ -1,0 +1,50 @@
+import {useState, useRef, useEffect} from "react";
+import DotMenuIcon from "./icons/DotMenuIcon.jsx";
+
+export default function DotMenu() {
+    const [open, setOpen] = useState(false);
+    const menuRef = useRef(null);
+
+    useEffect( () => {
+        function handleClickOutside(e) {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setOpen(false);
+            }
+        }
+
+        if (open) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+    }, [open]);
+
+    return (
+        <div className="relative" ref={menuRef}>
+            <button onClick={(e) => {
+                e.stopPropagation();
+                setOpen((o) => !o);
+            }} className="p-1 rounded hover:bg-gray-700">
+                <DotMenuIcon color="white"></DotMenuIcon>
+            </button>
+
+            {open && (
+                <div
+                    className="absolute right-0 mt-2 w-32 rounded-md bg-gray-800 border border-gray-600 shadow-lg z-50"
+            onClick={(e) => e.stopPropagation()}>
+            <button className="block w-full text-left px-3 py-2 hover:bg-gray-700">
+                Share
+            </button>
+            <button className="block w-full text-left px-3 py-2 hover:bg-gray-700">
+                Edit
+            </button>
+            <button className="block w-full text-left px-3 py-2 text-red-400 hover:bg-gray-700">
+                Delete
+            </button>
+            </div>
+            )}
+        </div>
+    );
+}

@@ -1,0 +1,93 @@
+import Layout, {PageTitle} from "../components/Layout.jsx";
+import {useState, useEffect, useContext} from "react";
+import {getPost} from "../services/api.js";
+import {ShowcaseUser} from "../components/Displays.jsx";
+import ImageCarousel from "../components/ImageCarousel.jsx";
+import {ErrorCodeMessage} from "../components/ErrorMessage.jsx"
+import PostSkeleton from "../components/skeletons/PostSkeleton.jsx";
+import {PostLikeButton, FollowButton} from "../components/Buttons.jsx";
+import {useParams} from "react-router-dom";
+import {AuthContext} from "../context/AuthContext.jsx";
+import {UtilContext} from "../context/UtilContext.jsx";
+
+export default function Post() {
+    const {blogSlug, postId} = useParams();
+    const [blog, setBlog] = useState(null);
+    const [post, setPost] = useState(null);
+    const [err, setErr] = useState(null);
+    const {loading} = useContext(AuthContext);
+    const {setErrMessage} = useContext(UtilContext);
+
+    useEffect(() => {
+        load();
+    },[postId]);
+
+    async function load() {
+        try {
+            const result = await getPost(blogSlug, postId);
+            setBlog(result.blog);
+            setPost(result.post);
+        } catch (code) {
+            if (code === 404) {
+                setErr(404);
+            } else {
+                setErr(500);
+            }
+        }
+    }
+
+    if (!blog || !post || loading) return <PostSkeleton/>;
+
+    if (err) return (
+        <Layout>
+            <ErrorCodeMessage type={"Post"} code={err}/>
+        </Layout>
+    )
+
+    return (
+        <Layout>
+            <div className="mx-auto max-w-[78rem] md:grid grid-cols-[minmax(0,4fr)_20rem] gap-2">
+                <div className="flex items-center justify-between bg-black h-14 rounded-lg mb-4 p-2 md:hidden">
+                    <div className="flex items-center">
+                        <div className="mr-3 font-bold">{blog.blogName}</div>
+                        <div className="text-xs">{blog.followers} Followers</div>
+                    </div>
+                    <FollowButton/>
+                </div>
+                <div className="px-4 block max-w-4xl min-w-max border">
+                    <div className="overflow-hidden rounded-lg">
+                        <div>
+                            <div className="text-2xl mb-2">{post.title}</div>
+                            <div className="flex items-center justify-between mb-3">
+                                <ShowcaseUser src={post.author.icon} displayName={post.author.username} alt="icon"/>
+                                <PostLikeButton num={post.stars}/>
+                            </div>
+                            {post.images?.length > 0 && (
+                                <ImageCarousel images={post.images}/>
+                            )}
+                            {post.body && (
+                                <div>{post.body}</div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                <div className="border w-80 pb-3 rounded-lg bg-black hidden md:block">
+                    <div>
+                        <div className="h-20 w-70 m-2 overflow-hidden rounded-lg">
+                            <img src={blog.banner ? blog.banner : "/src/assets/sample.jpg"} className="h-full w-full object-cover bg-gray-600" alt="banner"/>
+                        </div>
+                        <div className="px-3">
+                            <div className="flex items-center justify-between mt-5">
+                                <div className="font-bold">{blog.blogName}</div>
+                                <FollowButton/>
+                            </div>
+                            <div className="mb-4">{blog.followers} Followers</div>
+                            <div className="mb-4">{blog.description} kjsdhfkjfdsha kajsdhf aioehff fkdljsha dffklsewiufh fsjh hkksjfdha lkhfsdkla hiual jha hjsahd fuhijdkh afuihdjksahdjhfjehfnfoan</div>
+                            <ShowcaseUser src={post.author.icon} displayName={post.author.username} alt="icon"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Layout>
+    )
+}

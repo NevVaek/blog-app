@@ -2,8 +2,9 @@ import mongoose from "mongoose";
 
 const blogSchema = mongoose.Schema({
     id: {type: String, required: true},
-    ownerId: {type: String, required: true},
+    owner: {type: mongoose.Schema.Types.ObjectId, ref:"User", required: true},
     blogName: {type: String, required: true},
+    description: {type: String, maxlength: 2000, required: false},
     followers: {type: Number, default: 0, required: true},
     banner: {type: String, default: null},
     blogSlug: {type: String, required: true},
@@ -11,7 +12,7 @@ const blogSchema = mongoose.Schema({
 
 const postSchema = mongoose.Schema({
     id: {type: String, required: true},
-    authorId: {type: String, required: true},
+    author: {type: mongoose.Schema.Types.ObjectId, ref:"User", required: true},
     blogId: {type: String, required: true},
     title: {type: String, required: true},
     body: {type: String, required: true},

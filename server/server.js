@@ -10,7 +10,6 @@ import accountRouter from "./routers/accounts.js";
 import migrateBlogSlugs from "./scripts/migrateBlogSlugs.js";
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 app.use(helmet());
 app.use(cookieParser());
@@ -19,16 +18,25 @@ app.use(cors({
     origin: "http://localhost:5173", credentials: true,
 }));
 
+//If you want to adjust it cross-origin and allow cross-origin resource sharing
+app.use((req, res, next) => {
+  res.setHeader('cross-origin-resource-policy', 'cross-origin');
+  next();
+});
+
 app.use("/auth", authRouter);
 app.use("/", blogRouter);
 app.use("/account/", accountRouter);
 
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send("Internal Server Error")
-});
 
-app.use("/uploads", express.static("../uploads"))
+app.use("/uploads", express.static("./uploads"));
+
+app.use((err, req, res, next) => {
+     console.error(err.stack);
+    return res.status(500).json({
+        message: "Internal server error. Please try again later"
+    });
+});
 
 mongoose.connect(`mongodb://localhost:27017/${dbConfig.dbName}`)
     .then(() => {

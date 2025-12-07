@@ -1,15 +1,16 @@
 POST http://localhost:3000/create/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsImlhdCI6MTc2MjY3MjM1NSwiZXhwIjoxNzYyNjc0MTU1fQ.7-sp74hMI73FLTH38GeRYtxAAB-1rwUkw3LKqQ2M9O0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZkMzkxNzNmLTY3OTUtNDU4MS1iN2Q5LWNjOWM1MTlkZTBlYiIsIl9pZCI6IjY5MmMzY2U4ZjkzNTY5NmNiNDJkMDZmOSIsImlhdCI6MTc2NDU3NjA4OCwiZXhwIjoxNzY0NTc3ODg4fQ.eJFyM1Ezp2VwRwv-9B2makXU3GbS2qPGtsMDTkUMYbA
 Content-Type: application/json
 
 {
-    "blogName": "yee newblog"
+    "blogName": "newblog",
+  "description": "This is were the description goes OwO"
 }
 
 ###
 
 POST http://localhost:3000/newblog/posts/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsInVzZXJuYW1lIjoieWVzIiwiaWF0IjoxNzYyNDMwOTc2LCJleHAiOjE3NjI0MzI3NzZ9.7dOSia0d7HaW4UmQKF9H3V7n58YL4NRCWAed5wxCqyk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZkMzkxNzNmLTY3OTUtNDU4MS1iN2Q5LWNjOWM1MTlkZTBlYiIsIl9pZCI6IjY5MmMzY2U4ZjkzNTY5NmNiNDJkMDZmOSIsImlhdCI6MTc2NDU3NjA4OCwiZXhwIjoxNzY0NTc3ODg4fQ.eJFyM1Ezp2VwRwv-9B2makXU3GbS2qPGtsMDTkUMYbA
 Content-Type: application/json
 
 {

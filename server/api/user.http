@@ -44,8 +44,8 @@ POST http://localhost:3000/auth/login/lgin HTTP/1.1
 content-type: application/json
 
 {
-  "username": "yes2",
-  "password": "password12"
+  "username": "preyhunter1541",
+  "password": "x0603094232ii"
 }
 
 ###

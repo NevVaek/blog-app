@@ -5,18 +5,27 @@ import fs from "fs";
 
 export async function postWare(mode, req) {
     try {
-        if (mode === "rAll") {
+        if (mode === "rPagination") {
             const blogId = await searchBlogNames("slugToId", req.params.blogSlug);
             if (!blogId) {
                 return false;
             }
-            return await postModel.find({blogId: blogId});
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+            const skip = (page - 1) * limit;
+
+            const totalPosts = await postModel.countDocuments({blogId: blogId});
+
+            const posts = await postModel.find({blogId: blogId}).sort({createdAt: -1}).skip(skip).limit(limit).populate("author", "id username icon");
+
+            return {posts, page, limit, totalPosts}
+
         } else if (mode === "rOne") {
             const blogId = await searchBlogNames("slugToId", req.params.blogSlug);
             if (!blogId) {
                 return "noBlog";
             }
-            const result = await postModel.findOne({id: req.params.postId});
+            const result = await postModel.findOne({id: req.params.postId}).populate("author", "id username icon");
             if (!result) {
                 return "noPost";
             }
@@ -33,7 +42,7 @@ export async function postWare(mode, req) {
 
             const newPost = new postModel({
                 id: uuidv4(),
-                authorId: req.user.id,
+                author: req.user._id,
                 blogId: blogId,
                 title: req.body.title,
                 body: req.body.body,
@@ -117,12 +126,18 @@ export async function postWare(mode, req) {
 
 export async function blogWare(mode, req) {
     try{
-        if (mode === "r") {
-            const result = await blogModel.findOne({blogSlug: req.params.blogSlug});
+        if (mode === "rOne") {
+            const result = await blogModel.findOne({blogSlug: req.params.blogSlug}).populate("owner", "id username icon");
             if (!result) {
                 return false;
             }
             return result;
+        } else if (mode === "rMult") {
+            const result = await blogModel.find().sort({followers: -1}).limit(10).populate("owner", "id username icon");
+            if (!result) {
+                return false;
+            }
+            return result
         } else if (mode === "w") {
             const checkedResult = await blogModel.findOne({blogName: req.body.blogName});
             if (checkedResult) {
@@ -134,8 +149,9 @@ export async function blogWare(mode, req) {
 
             const newBlog = new blogModel({
                id: uuidv4(),
-                ownerId: req.user.id,
+                owner: req.user._id,
                 blogName: req.body.blogName,
+                description: req.body.description,
                 blogSlug: slugify(req.body.blogName, {lower: true, strict: true}),
                 banner: req.file ? `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}` : null,
             });
@@ -147,7 +163,7 @@ export async function blogWare(mode, req) {
                 return "noBlog";
             }
 
-            const allowed = ["blogName", "banner"];
+            const allowed = ["blogName","description", "banner"];
             const updateFields = {}
 
             for (const key of allowed) {

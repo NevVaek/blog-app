@@ -7,19 +7,41 @@ import {uploadBanner, uploadPostImages} from "../helpers/uploadHelper.js";
 
 const blogRouter = Router();
 
+blogRouter.get("/blogs", async (req, res, next) => {
+    try {
+        const result = await blogWare("rMult", req);
+        if (!result) {
+            return res.status(200).json({
+                count: 0,
+                blogs: [],
+            });
+        }
+        return res.status(200).json({
+            count: result.length,
+            blogs: result,
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
 blogRouter.get("/:blogSlug/posts", async(req, res, next) => {
     try {
-        const postResult = await postWare("rAll", req);
-        const blogResult = await blogWare("r", req)
+        const blogResult = await blogWare("rOne", req)
         if (!blogResult) {
             return res.status(404).json({
                 message: `Couldn't find blog ${req.params.blogSlug}. It exists not`
             });
         }
-        res.status(200).json({
+
+        const {posts, page, limit, totalPosts} = await postWare("rPagination", req);
+
+        return res.status(200).json({
             blog: blogResult,
-            postCount: postResult.length,
-            posts: postResult,
+            posts: posts,
+            postCount: totalPosts,
+            page: page,
+            pageCount: Math.ceil(totalPosts / limit),
         });
     } catch (err) {
         next(err)
@@ -28,20 +50,21 @@ blogRouter.get("/:blogSlug/posts", async(req, res, next) => {
 
 blogRouter.get("/:blogSlug/posts/:postId", async(req, res, next) => {
     try {
-        const result = await postWare("rOne", req);
-        const result2 = await blogWare("r", req);
+        const result = await blogWare("rOne", req);
         if (result === "noBlog") {
             return res.status(404).json({
                 message: `Couldn't find blog ${req.params.blogSlug}. It exists not`
             });
-        } else if (result === "noPost") {
+        }
+        const result2 = await postWare("rOne", req);
+        if (result === "noPost") {
             return res.status(404).json({
                 message: `Couldn't find specified post in ${req.params.blogSlug}.`
             });
         }
-        res.status(200).json({
-            blog: result2,
-            post: result,
+        return res.status(200).json({
+            blog: result,
+            post: result2,
         });
     } catch (err) {
         next(err);
@@ -56,7 +79,7 @@ blogRouter.post("/:blogSlug/posts/new", validateToken, permissionChecker("blog")
                 message: "Unknown blog name"
             })
         } else {
-            res.status(201).json({
+            return res.status(201).json({
                 message: "Post successful"
             });
         }
@@ -77,7 +100,7 @@ blogRouter.post("/create/new", validateToken, uploadBanner.single("banner"), asy
                 message: "Blog name can only contain letters, numbers, spaces, underscores, and hyphens."
             });
         }
-        res.status(201).json({
+        return res.status(201).json({
             message: "Blog successfully created"
         });
     } catch (err) {
@@ -105,7 +128,7 @@ blogRouter.patch("/create/update/:blogSlug", validateToken, permissionChecker("b
                 message: "Blog name already taken"
             });
         }
-        res.status(200).json({
+        return res.status(200).json({
             message: "Post updated successfully"
         });
     } catch(err) {
@@ -129,7 +152,7 @@ blogRouter.patch("/:blogSlug/posts/:postId/edit", validateToken, permissionCheck
                 message: "Number of uploaded files exceed limit"
             });
         }
-        res.status(200).json({
+        return res.status(200).json({
             message: "Post updated successfully"
         });
     } catch(err) {
@@ -146,7 +169,7 @@ blogRouter.delete("/:create/delete/:blogSlug", validateToken, permissionChecker(
                 message: "Unknown blog name"
             });
         }
-        res.status(200).json({
+        return res.status(200).json({
             message: "Blog deleted successfully"
         })
     } catch (err) {
@@ -167,7 +190,7 @@ blogRouter.delete("/:blogSlug/posts/:postId/delete", validateToken, permissionCh
             });
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             message: "Post deleted successfully"
         });
     } catch(err) {

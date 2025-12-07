@@ -1,25 +1,24 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import {BrowserRouter, Routes, Route} from "react-router-dom";
+import Home from "./pages/Home.jsx";
+import Blog from "./pages/Blog.jsx";
+import Post from "./pages/Post.jsx";
+import Login from "./pages/Login.jsx";
+import Signup from "./pages/Signup.jsx";
+
+import ErrorCleaner from "./services/ErrorCleaner.jsx";
 
 function App() {
-    const [posts, setPosts] = useState([]);
-
-    useEffect(() => {
-        fetch("http://localhost:3000/api/posts")
-            .then(res => res.json())
-            .then(data => setPosts(data))
-    }, []);
-
     return (
-        <div>
-            <h2>Fishcakes and 2L of Extra Virgin Oil</h2>
-            {posts.map(p => (
-                <article key={p.id}>
-                    <h3>{p.title}</h3>
-                    <p>{p.body}</p>
-                </article>
-            ))}
-        </div>
+        <BrowserRouter>
+            <ErrorCleaner/>
+            <Routes>
+                <Route path="/" element={<Home/>} />
+                <Route path="/login" element={<Login/>}/>
+                <Route path="/register" element={<Signup/>}/>
+                <Route path="/:blogSlug" element={<Blog/>}/>
+                <Route path="/:blogSlug/:postId" element={<Post/>}/>
+            </Routes>
+        </BrowserRouter>
     );
 }
 

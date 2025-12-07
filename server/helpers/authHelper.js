@@ -4,19 +4,22 @@ import {blogModel, postModel} from "../dbModels/blogPost.js";
 import bcrypt from "bcrypt";
 
 
-async function authWare(mode, req) {
+async function authWare(mode, req=null, userData=null) {
     try {
+        if (!req && !userData) {
+            throw new Error("req or userData must be provided");
+        }
         if (mode === "r") {
             return await User.findOne({username: req.body.username});
         } else if (mode === "rId") {
-            return await User.findOne({id: req.body.id});
+            return req ? await User.findOne({ id: req.user.id }) : await User.findOne({ id: userData.id });
         } else if (mode === "w") {
             const checkedResult = await User.findOne({username: req.body.username});
             if (checkedResult) {
                 return false;
             }
             const salt = await bcrypt.genSalt();
-            const hashedPassword = await bcrypt.hash(req.body.registerPassword, salt);
+            const hashedPassword = await bcrypt.hash(req.body.password, salt);
             const newUser = new User({
                 id: uuidv4(),
                 username: req.body.username,
@@ -28,7 +31,7 @@ async function authWare(mode, req) {
             await newUser.save();
             return true;
         } else if (mode === "a") {
-            const allowed = ["username", "email", "password"];
+            const allowed = ["email", "password", "icon"];
             const updateFields = {};
 
             for (const key of allowed) {
@@ -53,6 +56,7 @@ async function authWare(mode, req) {
                 {$set: updateFields},
                 {runValidators: true}
             );
+
             return true;
         } else {
             throw new Error(`Unknown mode ${mode}`);
@@ -85,7 +89,7 @@ export function permissionChecker(mode) {
                 });
             }
             if (mode === "blog") {
-                if (blog.ownerId !== req.user.id) {
+                if (!blog.owner.equals(req.user._id)) {
                     return res.status(403).json({
                         message: "Access denied"
                     });
@@ -98,7 +102,7 @@ export function permissionChecker(mode) {
                         message: "Couldn't find post"
                     });
                 }
-                if (req.user.id !== blog.ownerId && req.user.id !== post.authorId) {
+                if (req.user._id.toString() !== blog.owner.toString() && req.user._id.toString() !== post.author.toString()) {
                     return res.status(403).json({
                         message: "Access denied"
                     });

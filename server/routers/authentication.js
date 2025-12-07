@@ -7,6 +7,7 @@ import {generateAccessToken} from "../helpers/tokenHelper.js";
 import bcrypt from "bcrypt";
 
 const authRouter = Router();
+dotenv.config();
 
 authRouter.post("/login/lgin", async (req, res, next) => {
     try {
@@ -23,18 +24,22 @@ authRouter.post("/login/lgin", async (req, res, next) => {
                 message: "Wrong username or password"
             });
         } else if (matchResult) {
-            const userId = await fetchUserId(req.body.username);
-            const accessToken = generateAccessToken({id: userId});
+            const accessToken = generateAccessToken({id: result.id, _id: result._id});
             res.cookie("access_token", accessToken, {
                 httpOnly: true,
-                secure: true,
+                secure: process.env.NODE_ENV === "production",  //For production: set secure: true
                 sameSite: "strict",
                 maxAge: 3 * 60 * 60 * 1000,
             });
 
-            res.status(200).json({
-                userId: result.id,
-                message: "Login successful",
+            return res.status(200).json({
+                user: {
+                    id: result.id,
+                    _id: result._id,
+                    username: result.username,
+                    email: result.email,
+                    icon: result.icon,
+                }
             });
         }
     } catch(err) {
@@ -50,19 +55,23 @@ authRouter.post("/register/sinup", async (req, res, next) => {
                 message: "Username already exists"
             });
         }
-        res.status(201).json({message: "Registration successful"});
+        return res.status(201).json({message: "Registration successful"});
     } catch (err) {
         next(err);
     }
 });
 
-authRouter.post("/logout", (req, res) => {
-    res.clearCookie("access_token", {
+authRouter.post("/logout", (req, res, next) => {
+    try {
+        res.clearCookie("access_token", {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
-    });
-    res.status(200).json({message: "Logged out successfully"});
+        });
+        return res.status(200).json({message: "Logged out successfully"});
+    } catch (err) {
+        next(err);
+    }
 });
 
 

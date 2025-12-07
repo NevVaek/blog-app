@@ -4,11 +4,10 @@ dotenv.config();
 
 
 export function validateToken(req, res, next) {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader.split(" ")[1];
+    const token = req.cookies?.access_token || (req.headers["authorization"] && req.headers["authorization"].split(" ")[1]);
 
     if (!token) {
-        res.status(400).json({
+        return res.status(400).json({
             message: "Login token not present. Please log in to continue"
         });
     }
@@ -22,6 +21,20 @@ export function validateToken(req, res, next) {
             next();
         }
     });
+}
+
+export function validateSessionToken(token) {
+    if (!token) {
+        return false;
+    }
+
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+            if (err) return resolve(false);
+            return resolve(user);
+        });
+    });
+
 }
 
 export function generateAccessToken(userInfo) {
