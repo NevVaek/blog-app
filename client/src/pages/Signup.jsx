@@ -14,7 +14,8 @@ export default function Signup() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const [ok, setOk] = useState(true);
+    const [ok, setOk] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -24,57 +25,59 @@ export default function Signup() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
-        if (!username || !email || !password) {
-            return setError("All fields are required.");
-        }
-        if (!ok) {
-            return setError("Username already taken. Please choose another name before submitting")
-        }
+        if (submitting) return;
 
+        setSubmitting(true);
+        setError("");
         try {
+            if (!username || !email || !password) {
+                return setError("All fields are required.");
+            }
+            if (!ok) {
+                const res = await checkUsername(username);
+                if (res) {
+                    setOk(false);
+                    return setError("Username already taken. Please choose another name before submitting");
+                } else {
+                    setOk(true);
+                }
+            }
+
             const result = await register({
                 username: username,
                 email: email,
                 password: password
             });
-            if (result === true) {
-                navigate("/");
+
+            if (result.status === "ok") {
+                if (result.payload === true) {
+                    navigate("/");
+                }
+            } else if (result.status === "err") {
+                throw new Error(result.payload);
             }
 
         } catch (err) {
-            console.log(err);
             setError(err);
-        }
-    }
-
-    const handleUsernameCheck = async () => {
-        if (!username) return;
-
-        try {
-            const res = await checkUsername(username);
-            if (res.result) {
-                setError("Username already taken");
-                setOk(false);
-            } else {
-                setOk(true);
-            }
-        } catch (err) {
-            console.log(err);
-            setError(err);
+        } finally {
+            setSubmitting(false);   //Don't forget to set "submitting" false afterwards.
         }
     }
 
     return (
-        <div className="h-screen w-screen flex justify-center items-center bg-gray-900">
-            <div className="bg-gray-800 rounded-3xl w-6/12 max-w-lg min-w-min p-4">
+        <div className="min-h-screen w-screen flex items-center flex-col bg-gray-800 sm:bg-gray-900">
+            <div className="bg-gray-800 mt-20 p-4 max-w-lg sm:w-6/12 sm:rounded-3xl sm:border sm:min-w-min sm:h-auto sm:p-4 sm:mt-48">
                 <h2 className="text-3xl text-gray-300 mb-10">Sign Up</h2>
                 <form onSubmit={handleSubmit}>
-                    <TextInput label="Username" placeHolder="Username" onChange={e => setUsername(e.target.value)} onBlur={handleUsernameCheck}/>
+                    <TextInput label="Username" placeHolder="Username" onChange={(e) => {
+                        setUsername(e.target.value);
+                        setOk(false);
+                        }
+                    }/>
                     <TextInput label="Password" type="password" placeHolder="Password"
                                onChange={e => setPassword(e.target.value)}/>
                     <TextInput label="Email" type="email" placeHolder="example@mail.com" onChange={e => setEmail(e.target.value)}/>
-                    <SubmitButton prompt="Register"></SubmitButton>
+                    <SubmitButton prompt="Register" disable={submitting}/>
                 </form>
             </div>
             {error && (

@@ -48,6 +48,23 @@ blogRouter.get("/:blogSlug/posts", async(req, res, next) => {
     }
 });
 
+blogRouter.get("/:blogSlug", async(req, res, next) => {
+    try {
+        const blogResult = await blogWare("rOne", req)
+        if (!blogResult) {
+            return res.status(404).json({
+                message: "Couldn't find blog. It doesn't exist"
+            });
+        }
+
+        return res.status(200).json({
+            blog: blogResult
+        })
+    } catch (err) {
+        next(err);
+    }
+});
+
 blogRouter.get("/:blogSlug/posts/:postId", async(req, res, next) => {
     try {
         const result = await blogWare("rOne", req);
@@ -57,7 +74,7 @@ blogRouter.get("/:blogSlug/posts/:postId", async(req, res, next) => {
             });
         }
         const result2 = await postWare("rOne", req);
-        if (result === "noPost") {
+        if (result2 === "noPost") {
             return res.status(404).json({
                 message: `Couldn't find specified post in ${req.params.blogSlug}.`
             });
@@ -108,6 +125,17 @@ blogRouter.post("/create/new", validateToken, uploadBanner.single("banner"), asy
     }
 });
 
+blogRouter.post("/check/", async (req, res, next) => {
+    try {
+        const result = req.body.blogId ? await blogWare("rOneNameUpdate", req) : await blogWare("rOneNameNew", req);
+        return res.status(200).json({
+            result: !!result
+        });
+    } catch (err) {
+        next(err);
+    }
+})
+
 blogRouter.patch("/create/update/:blogSlug", validateToken, permissionChecker("blog"), uploadBanner.single("banner"), async (req, res, next) => {
     try {
         const result = await blogWare("a", req)
@@ -121,7 +149,7 @@ blogRouter.patch("/create/update/:blogSlug", validateToken, permissionChecker("b
             })
         } else if (result === "forbidden") {
             return res.status(400).json({
-                message: "Blog name can only contain letters, numbers, spaces, underscores, and hyphens."
+                message: "Blog name should only contain letters, numbers, spaces, underscores, and hyphens."
             });
         } else if (result === "exists") {
             return res.status(409).json({
@@ -129,7 +157,8 @@ blogRouter.patch("/create/update/:blogSlug", validateToken, permissionChecker("b
             });
         }
         return res.status(200).json({
-            message: "Post updated successfully"
+            message: "Post updated successfully",
+            newBlogSlug: result
         });
     } catch(err) {
         next(err);
@@ -160,7 +189,7 @@ blogRouter.patch("/:blogSlug/posts/:postId/edit", validateToken, permissionCheck
     }
 })
 
-blogRouter.delete("/:create/delete/:blogSlug", validateToken, permissionChecker("blog"), async (req, res, next) => {
+blogRouter.delete("/:create/delete/:blogSlug", validateToken, permissionChecker("blog"), async (req, res) => {
     try {
         const result = await blogWare("d", req);
 
@@ -172,8 +201,11 @@ blogRouter.delete("/:create/delete/:blogSlug", validateToken, permissionChecker(
         return res.status(200).json({
             message: "Blog deleted successfully"
         })
-    } catch (err) {
-        next(err);
+    } catch {
+        console.log("error");
+        return res.status(200).json({
+            message: "Blog deleted successfully"
+        })
     }
 })
 

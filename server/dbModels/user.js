@@ -4,9 +4,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const userSchema = mongoose.Schema({
-    id: {type: String, required: true},
-    username: {type: String, required: true},
-    email: {type: String, required: true},
+    id: {type: String, required: true, unique: true},
+    username: {type: String, required: true, unique: true},
+    email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     joined: {type: Date, required: true},
     icon: {type: String, default: `${process.env.BASE_URL}/uploads/images/usericons/default-icon.jpeg` ,required: true}

@@ -3,7 +3,7 @@ import {AuthContext} from "../context/AuthContext.jsx";
 import {useContext, useState} from "react";
 import StarIcon from "../components/icons/StarIcon.jsx";
 
-function BaseButton({to, onClick, children, className=""}) {
+export function BaseButton({to, onClick, children, className=""}) {
     const Component = to ? Link : "button";
 
     return (
@@ -42,9 +42,9 @@ export function LogoutButton({className}) {
     );
 }
 
-export function SubmitButton({prompt}) {
+export function SubmitButton({prompt, disable}) {
     return (
-        <button type="submit" className="mt-5 text-gray-300 text-sm border border-fuchsia-50 rounded-md p-2 hover:bg-gray-700">{prompt}</button>
+        <button type="submit" disabled={disable} className={`${disable ? "opacity-50 cursor-not-allowed" : ""} text-gray-300 text-lg border border-fuchsia-50 rounded-md p-2 hover:bg-gray-700`}>{disable ? "Sending.." : prompt}</button>
     )
 }
 

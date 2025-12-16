@@ -27,11 +27,17 @@ export function AuthProvider({children}) {
 
     const login = async (credentials) => {
         try {
-         const userData = await loginUser(credentials);
-         setUser(userData.user);
-         return true;
+            const userData = await loginUser(credentials);
+
+            if (userData.status === "ok") {
+                setUser(userData.payload.user);
+                return true;
+            } else if (userData.status === "err") {
+                setUser(null);
+                return userData.payload;
+            }
+
         } catch (err) {
-            setUser(null);
             return err;
         }
     }

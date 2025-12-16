@@ -3,7 +3,7 @@ import {useState, useEffect, useContext} from "react";
 import {getPost} from "../services/api.js";
 import {ShowcaseUser} from "../components/Displays.jsx";
 import ImageCarousel from "../components/ImageCarousel.jsx";
-import {ErrorCodeMessage} from "../components/ErrorMessage.jsx"
+import {ErrorCodeMessage, FullPageNoContent} from "../components/ErrorMessage.jsx"
 import PostSkeleton from "../components/skeletons/PostSkeleton.jsx";
 import {PostLikeButton, FollowButton} from "../components/Buttons.jsx";
 import {useParams} from "react-router-dom";
@@ -15,6 +15,7 @@ export default function Post() {
     const [blog, setBlog] = useState(null);
     const [post, setPost] = useState(null);
     const [err, setErr] = useState(null);
+    const [pageLoading, setPageLoading] = useState(true);
     const {loading} = useContext(AuthContext);
     const {setErrMessage} = useContext(UtilContext);
 
@@ -25,22 +26,31 @@ export default function Post() {
     async function load() {
         try {
             const result = await getPost(blogSlug, postId);
-            setBlog(result.blog);
-            setPost(result.post);
-        } catch (code) {
-            if (code === 404) {
-                setErr(404);
-            } else {
-                setErr(500);
+
+            if (result.status === "ok") {
+                setBlog(result.payload.blog);
+                setPost(result.payload.post);
+            } else if (result.status === "err") {
+                const code = result.payload;
+
+                if (code === "404") {
+                    setErr(404);
+                } else {
+                    setErr(500);
+                }
             }
+        } catch (err) {
+            setErrMessage(err);
+        } finally {
+            setPageLoading(false);
         }
     }
 
-    if (!blog || !post || loading) return <PostSkeleton/>;
+    if (pageLoading && (!blog || !post || loading)) return <PostSkeleton/>;
 
     if (err) return (
         <Layout>
-            <ErrorCodeMessage type={"Post"} code={err}/>
+            <ErrorCodeMessage type={"Post"} code={err} url={`/${blogSlug}`}/>
         </Layout>
     )
 

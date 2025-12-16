@@ -1,16 +1,16 @@
 POST http://localhost:3000/create/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZkMzkxNzNmLTY3OTUtNDU4MS1iN2Q5LWNjOWM1MTlkZTBlYiIsIl9pZCI6IjY5MmMzY2U4ZjkzNTY5NmNiNDJkMDZmOSIsImlhdCI6MTc2NDU3NjA4OCwiZXhwIjoxNzY0NTc3ODg4fQ.eJFyM1Ezp2VwRwv-9B2makXU3GbS2qPGtsMDTkUMYbA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZkMzkxNzNmLTY3OTUtNDU4MS1iN2Q5LWNjOWM1MTlkZTBlYiIsIl9pZCI6IjY5MmMzY2U4ZjkzNTY5NmNiNDJkMDZmOSIsImlhdCI6MTc2NTQ1OTkzOCwiZXhwIjoxNzY1NDYxNzM4fQ.BMXcRFzGIHWGk2AXv23YXBw86QlPCOJOrx3qgE05ze0
 Content-Type: application/json
 
 {
-    "blogName": "newblog",
-  "description": "This is were the description goes OwO"
+    "blogName": "Blog6",
+  "description": "In the year 1874 B.C., gremlins swarmed out from the deepest pits of hell to reaquisition what was truly theirs. They trampled over the primitive civilization of the humans and constructed a utopia where all everyone lived in relative comfort. Tall towers with heights unimaginable to humans pierced throught the clouds and incredible automatons rumbled across the land. Great in'it?"
 }
 
 ###
 
-POST http://localhost:3000/newblog/posts/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZkMzkxNzNmLTY3OTUtNDU4MS1iN2Q5LWNjOWM1MTlkZTBlYiIsIl9pZCI6IjY5MmMzY2U4ZjkzNTY5NmNiNDJkMDZmOSIsImlhdCI6MTc2NDU3NjA4OCwiZXhwIjoxNzY0NTc3ODg4fQ.eJFyM1Ezp2VwRwv-9B2makXU3GbS2qPGtsMDTkUMYbA
+POST http://localhost:3000/blog-name/posts/new HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZkMzkxNzNmLTY3OTUtNDU4MS1iN2Q5LWNjOWM1MTlkZTBlYiIsIl9pZCI6IjY5MmMzY2U4ZjkzNTY5NmNiNDJkMDZmOSIsImlhdCI6MTc2NTQ1MTYxNCwiZXhwIjoxNzY1NDUzNDE0fQ.GOeEFj6CDfOfo9nsVgCmJ2eXvq5LUB6ZAUtGc2i_p_M
 Content-Type: application/json
 
 {
@@ -56,6 +56,6 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:3000/create/delete/yee-newblog
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyOGIxOTY1LTk1NjktNGVjYS04MDUxLTgyMTU0NmJkNmRkOSIsImlhdCI6MTc2MjY3MjM1NSwiZXhwIjoxNzYyNjc0MTU1fQ.7-sp74hMI73FLTH38GeRYtxAAB-1rwUkw3LKqQ2M9O0
+DELETE http://localhost:3000/create/delete/blog-name
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZkMzkxNzNmLTY3OTUtNDU4MS1iN2Q5LWNjOWM1MTlkZTBlYiIsIl9pZCI6IjY5MmMzY2U4ZjkzNTY5NmNiNDJkMDZmOSIsImlhdCI6MTc2NTc5MjM3NCwiZXhwIjoxNzY1Nzk0MTc0fQ.LynX3TRGEz8V17CTgbQ1MSuGiSnExdTwKBhV0KxEZO4
 Content-Type: application/json

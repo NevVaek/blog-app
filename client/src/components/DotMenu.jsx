@@ -1,7 +1,8 @@
 import {useState, useRef, useEffect} from "react";
 import DotMenuIcon from "./icons/DotMenuIcon.jsx";
+import {Link} from "react-router-dom";
 
-export default function DotMenu() {
+export default function DotMenu({mode, link1, link2, link3}) {
     const [open, setOpen] = useState(false);
     const menuRef = useRef(null);
 
@@ -34,16 +35,20 @@ export default function DotMenu() {
                 <div
                     className="absolute right-0 mt-2 w-32 rounded-md bg-gray-800 border border-gray-600 shadow-lg z-50"
             onClick={(e) => e.stopPropagation()}>
-            <button className="block w-full text-left px-3 py-2 hover:bg-gray-700">
-                Share
-            </button>
-            <button className="block w-full text-left px-3 py-2 hover:bg-gray-700">
-                Edit
-            </button>
-            <button className="block w-full text-left px-3 py-2 text-red-400 hover:bg-gray-700">
-                Delete
-            </button>
-            </div>
+                    <Link to={link1} className="block w-full text-left px-3 py-2 hover:bg-gray-700">
+                        Share
+                    </Link>
+                    {mode === "owner" && (
+                        <>
+                            <Link to={link2} className="block w-full text-left px-3 py-2 hover:bg-gray-700">
+                            Edit
+                            </Link>
+                            <Link to={link3} className="block w-full text-left px-3 py-2 text-red-400 hover:bg-gray-700">
+                                Delete
+                            </Link>
+                        </>
+                    )}
+                </div>
             )}
         </div>
     );

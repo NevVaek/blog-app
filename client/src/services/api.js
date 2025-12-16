@@ -1,5 +1,6 @@
 import {UtilContext} from "../context/UtilContext.jsx";
 import {useContext} from "react";
+import axios from "axios";
 
 const API_URL = "http://localhost:3000";
 
@@ -10,12 +11,11 @@ export async function loginUser(data) {
         body: JSON.stringify(data),
         credentials: "include",
     });
+    const resData = await res.json();
     if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Login failed")
+        return {status: "err", payload: resData.message};
     }
-
-    return await res.json();
+    return {status: "ok", payload: resData};
 }
 
 
@@ -42,12 +42,11 @@ export async function register(data) {
         body: JSON.stringify(data),
         headers: {"Content-Type": "application/json"}
     });
-    console.log(res ? res : "Nothing received");
     if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Signup Failed");
+        const err = await res.json();
+        return {status: "err", payload: err.message};
     }
-    return true;
+    return {status: "ok", payload: true};
 }
 
 export async function getCurrentUser() {
@@ -66,36 +65,89 @@ export async function checkSession() {
 }
 
 export async function checkUsername(username) {
-    const res = await fetch(`${API_URL}/account/check/${username}`);
+    const res = await fetch(`${API_URL}/account/check/${username}`); //THIS LOOKS WRONG. SEND THE USERNAME IN A PROPER JSON PACKAGE
 
     if (!res.ok) return false;
-    return await res.json();
+    const checkResult = await res.json();
+    return checkResult.result;
+}
+
+export async function checkBlogName(blogName, id=null){
+    console.log(id)
+    const res = await fetch(`${API_URL}/check`, {
+        method: "POST",
+        body: JSON.stringify({blogName: blogName, blogId: id ? id : null}),
+        headers: {"Content-Type": "application/json"}
+    });
+    if (!res.ok) return false
+    const checkResult = await res.json();
+    return checkResult.result;
 }
 
 export async function getBlogs() {
     const res = await fetch(`${API_URL}/blogs`);
+    const data = await res.json();
     if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData || "Failed to fetch blogs")
+        return {status: "err", payload: data.message}
     }
-    const data =  await res.json();
-    return data.blogs;
+    return {status: "ok", payload: data.blogs}
+}
+
+export async function getBlog(blogSlug) {
+    const res = await fetch(`${API_URL}/${blogSlug}`);
+    if (!res.ok) {
+        return {status: "err", payload: res.status.toString()};
+    }
+    const resData = await res.json();
+    return {status: "ok", payload: resData};
 }
 
 export async function getBlogPosts(blogSlug, page = 1, limit = 10) {
     const res = await fetch(`${API_URL}/${blogSlug}/posts?page=${page}&limit=${limit}`);
     if (!res.ok) {
-        throw new Error(res.statusCode.toString());
+        return {status: "err", payload: res.status.toString()};
     }
-    return await res.json();
+    const resData = await res.json();
+    return {status: "ok", payload: resData};
 }
 
 export async function getPost(blogSlug, postId){
     const res = await fetch(`${API_URL}/${blogSlug}/posts/${postId}`);
     if (!res.ok) {
-        throw new Error(res.statusCode || "Fetch failed");
+        return {status: "err", payload: res.status.toString()};
     }
-    return await res.json()
+    const resData = await res.json();
+    return {status: "ok", payload: resData}
+}
+
+export async function updateBlog(blogSlug, formData, setState) {
+    //const res = await fetch(`${API_URL}/create/update/${blogSlug}`, {
+    //    method: "PATCH",
+    //    body: formData,
+    //    credentials: "include"
+    //});
+
+    //if (!res.ok) {
+    //    const err = await res.json();
+    //    return {status: "err", payload: err.message};
+    //}
+
+    //const resData = await res.json();
+    //return {status: "ok", payload: resData.newBlogSlug}
+
+    try {
+        const res = await axios.patch(`${API_URL}/create/update/${blogSlug}`, formData, {
+            withCredentials: true,
+            onUploadProgress: (e) => {
+                const percent = Math.round((e.loaded * 100) / e.total);
+                setState(percent);
+            }
+        });
+
+        return {status: "ok", payload: res.data.newBlogSlug}
+    } catch(err) {
+        return {status: "err", payload: err.response.data.message};
+    }
 }
 
 

@@ -1,4 +1,5 @@
 import {postModel, blogModel} from "../dbModels/blogPost.js";
+import deleteWare from "./deleteHelper.js";
 import {v4 as uuidv4} from "uuid";
 import slugify from "slugify";
 import fs from "fs";
@@ -31,6 +32,8 @@ export async function postWare(mode, req) {
             }
             return result;
         } else if (mode === "w") {
+
+            //return false when blogslug doesn't exist
             const blogId = await searchBlogNames("slugToId", req.params.blogSlug);
             if (!blogId) {
                 return false;
@@ -46,9 +49,9 @@ export async function postWare(mode, req) {
                 blogId: blogId,
                 title: req.body.title,
                 body: req.body.body,
-                images: req.files ? req.files.map(file => {
+                images: req.files ? req.files.map(file =>
                 `${req.protocol}://${req.get("host")}/uploads/images/posts/${file.filename}`
-                }) : []
+                ) : []
             });
             await newPost.save();
             return true;
@@ -63,25 +66,15 @@ export async function postWare(mode, req) {
             }
 
             const allowed = ["title", "body", "images"]
+            const updatePostFields = {}     //Creates container
 
-            for (const key of allowed) {
-                if (req.body[key] !== undefined) post[key] = req.body[key];
+            for (const key of allowed) {        //Adds the new values to the container
+                if (req.body[key] !== undefined) updatePostFields[key] = req.body[key];
             }
+            const toDelete = req.body.deletedImages ? JSON.parse(req.body.deletedImages) : null;
 
-            if (req.body.deletedImages) {
-                const toDelete = JSON.parse(req.body.deletedImages);
-                post.images = post.images.filter(img => !toDelete.includes(img));
-
-                await Promise.all(toDelete.map(async (filename) => {
-                    try {
-                        await fs.unlink(`uploads/images/posts/${filename}`, err => {
-                            throw new Error()
-                        });
-                    } catch (err) {
-                        console.error("Failed to delete", filename);
-                        throw new Error("Bad delete");
-                    }
-                }));
+            if (toDelete) {
+                updatePostFields.images = post.images.filter(img => !toDelete.includes(img));
             }
 
             if (req.files && req.files.length > 0) {
@@ -89,11 +82,26 @@ export async function postWare(mode, req) {
                 const newImages = req.files.map(file =>
                     `${req.protocol}://${req.get("host")}/uploads/images/posts/${file.filename}`
                 );
-                post.images = [...post.images, ...newImages];
+                updatePostFields.images = [...updatePostFields.images, ...newImages];
             }
 
-            if (post.images.length > 5) return "exceedMax";
-            await post.save();
+            if (updatePostFields.images.length > 5) return "exceedMax";
+
+            const updatedResult = await postModel.findOneAndUpdate(
+                {id: req.params.postId,
+                author: req.user._id        // For double protection
+                },
+                {$set: updatePostFields},
+                {runValidators: true, new: true}
+            );
+
+            if (!updatedResult) {
+                throw new Error("Id not found");
+            }
+
+            if (toDelete) {
+                await deleteWare("post", toDelete);
+            }
 
             return true;
         } else if (mode === "d") {
@@ -101,7 +109,7 @@ export async function postWare(mode, req) {
             if (!blog) {
                 return "noBlog";
             }
-            const post = await postModel.findOneAndDelete({id: req.params.postId});
+            const post = await postModel.findOneAndDelete({id: req.params.postId}); //Single atomic operation. Only runs once per request
             if (!post) {
                 return "noPost";
             }
@@ -132,6 +140,10 @@ export async function blogWare(mode, req) {
                 return false;
             }
             return result;
+        } else if (mode === "rOneNameNew") {
+            return checkBlogNameForDupe("new", req.body.blogName);  // Returns TRUE if there is dupe, otherwise, FALSE
+        } else if (mode === "rOneNameUpdate") {
+            return checkBlogNameForDupe("update", req.body.blogName, req.body.blogId);  // Returns TRUE if there is dupe, otherwise, FALSE
         } else if (mode === "rMult") {
             const result = await blogModel.find().sort({followers: -1}).limit(10).populate("owner", "id username icon");
             if (!result) {
@@ -139,21 +151,20 @@ export async function blogWare(mode, req) {
             }
             return result
         } else if (mode === "w") {
-            const checkedResult = await blogModel.findOne({blogName: req.body.blogName});
+            const checkedResult = await checkBlogNameForDupe("new", req.body.blogName);
             if (checkedResult) {
                 return "exists";
             }
             if (!checkString(req.body.blogName)) {
                 return "forbidden"
             }
-
             const newBlog = new blogModel({
                id: uuidv4(),
                 owner: req.user._id,
                 blogName: req.body.blogName,
                 description: req.body.description,
                 blogSlug: slugify(req.body.blogName, {lower: true, strict: true}),
-                banner: req.file ? `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}` : null,
+                banner: req.file ? `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}` : `${req.protocol}://${req.get("host")}/uploads/images/banners/defaults/default${getRandomInt(1, 17)}.jpg`
             });
             await newBlog.save();
             return true;
@@ -162,6 +173,8 @@ export async function blogWare(mode, req) {
             if (!blogId) {
                 return "noBlog";
             }
+            const blog = await blogModel.findOne({ id: blogId });
+            const oldBannerPath = blog.banner;
 
             const allowed = ["blogName","description", "banner"];
             const updateFields = {}
@@ -177,11 +190,12 @@ export async function blogWare(mode, req) {
             if (req.file) {
                 updateFields.banner = `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}`
             }
+
             if (updateFields.blogName) {
                 if (!checkString(updateFields.blogName)) {
                     return "forbidden";
                 }
-                 const checkedResult = await blogModel.findOne({blogName: updateFields.blogName});
+                 const checkedResult = await checkBlogNameForDupe("update", updateFields.blogName, blogId);
                 if (checkedResult) {
                     return "exists";
                 }
@@ -189,15 +203,31 @@ export async function blogWare(mode, req) {
                 updateFields.blogSlug = slugify(updateFields.blogName, { lower: true });
             }
 
-            await blogModel.findOneAndUpdate(
-                {id: blogId},
-                {$set: updateFields},
-                {runValidators: true}
-            );
-            return true;
+            try {
+                const updateResult = await blogModel.findOneAndUpdate(   //Single atomic operation. Only runs once per request
+                    {id: blogId,
+                    owner: req.user._id
+                    },
+                    {$set: updateFields},
+                    {runValidators: true}
+                );
+                if (!updateResult) {
+                    throw new Error("Id not found");
+                }
+
+            } catch (err) {
+                if (err.code === 11000) return "exists";
+                throw new Error("Something went wrong");
+            }
+
+            if (req.file && oldBannerPath) {
+                await deleteWare("banner", oldBannerPath);
+            }
+
+            return updateFields.blogName ? updateFields.blogSlug : true;
         } else if (mode === "d") {
 
-            const blog = await blogModel.findOneAndDelete({blogSlug: req.params.blogSlug}, {});
+            const blog = await blogModel.findOneAndDelete({blogSlug: req.params.blogSlug}, {}); //Single atomic operation. Only runs once per request
             if (!blog) {
                 return "noBlog";
             }
@@ -264,6 +294,33 @@ function checkString(name) {
     const regex = /^[a-zA-Z0-9 _-]+$/;
 
     return regex.test(name)
+}
+
+async function checkBlogNameForDupe(mode, nameData, blogIdData=null) {
+    try {                                                                   // Returns TRUE if there is dupe, otherwise returns FALSE
+        const name = slugify(nameData, { lower: true });
+        const result = await blogModel.findOne({blogSlug: name});
+        if (mode === "new") {
+            return !!result;
+        } else if (mode === "update") {                                     // For the mode "update", requires blogIdData as argument
+            if (!result) {
+                return false;
+            }
+            return !result.id === blogIdData   //For the mode "update", if the result blog and the checking blog is the same, pass
+        }
+        return false;
+    } catch {
+        return false
+    }
+}
+
+function getRandomInt(min, max) {
+  // Ensure min and max are integers
+  min = Math.ceil(min);
+  max = Math.floor(max);
+
+  // Generate a random number in the specified range
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 

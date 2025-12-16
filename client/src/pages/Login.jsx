@@ -13,30 +13,42 @@ export default function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [submitting, setSubmitting] = useState(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError("");
-        const result = await login({
-            username: username,
-            password: password});
 
-        if (result === true) {
-            navigate("/");
-        } else {
-            setError(result.message);
+    async function handleSubmit(e) {
+            e.preventDefault();
+            if (submitting) return;
+        try{
+            setSubmitting(true);
+            setError("");
+
+            const result = await login({
+                username: username,
+                password: password
+            });
+
+            if (result === true) {
+                navigate("/");
+            } else {
+                setError(result);
+            }
+        } catch (err) {
+            setError(err);
+        } finally {
+            setSubmitting(false);
         }
     }
 
     return (
-        <div className="h-screen w-screen flex justify-center items-center bg-gray-900">
-            <div className="bg-gray-800 rounded-3xl w-6/12 max-w-lg min-w-min p-4">
+        <div className="bg-gray-800 min-h-screen w-screen flex items-center flex-col sm:bg-gray-900">
+            <div className="bg-gray-800 mt-20 w-3/5 min-w-min p-4 sm:max-w-lg sm:border sm:mt-48 sm:rounded-3xl">
                 <h2 className="text-3xl text-gray-300 mb-10">Sign In</h2>
                 <form onSubmit={handleSubmit}>
                     <TextInput label="Username" placeHolder="Username" onChange={e => setUsername(e.target.value)}/>
                     <TextInput label="Password" type="password" placeHolder="Password"
                                onChange={e => setPassword(e.target.value)}/>
-                    <SubmitButton prompt="Login"/>
+                    <SubmitButton prompt="Login" disable={submitting}/>
                 </form>
             </div>
             {error && (

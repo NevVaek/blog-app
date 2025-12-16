@@ -3,7 +3,7 @@ import {getBlogPosts} from "../services/api.js";
 import {useState, useEffect, useContext} from "react";
 import {useParams, useNavigate} from "react-router-dom";
 import {ShowcaseUser} from "../components/Displays.jsx";
-import {ErrorCodeMessage} from "../components/ErrorMessage.jsx"
+import {ErrorCodeMessage, FullPageNoContent} from "../components/ErrorMessage.jsx"
 import BlogSkeleton from "../components/skeletons/BlogSkeleton.jsx";
 import DatePrompt from "../components/DatePrompt.jsx";
 import {PostLikeButton} from "../components/Buttons.jsx";
@@ -19,10 +19,12 @@ export default function Blog() {
     const [posts, setPosts] = useState([]);
     const [totalPosts, setTotalPosts] = useState(0);
     const [err, setErr] = useState(null);
+    const [pageLoading, setPageLoading] = useState(true);
     const [loadMoreError, setLoadMoreError] = useState(null);
     const [loadingMore, setLoadingMore] = useState(false);
+    const [owner, setOwner] = useState(false);
     const navigate = useNavigate();
-    const {loading} = useContext(AuthContext);
+    const {loading, user} = useContext(AuthContext);
     const {setErrMessage} = useContext(UtilContext);
     const limit = 10;
 
@@ -30,38 +32,51 @@ export default function Blog() {
        loadPage(1);
     }, [blogSlug]);
 
+    useEffect(() => {
+        if (user && blog && user.id === blog.owner.id ) {
+            setOwner(true);
+        }
+    }, [user, blog])
+
     async function loadPage(pg) {
         try {
             if (pg > 1) setLoadingMore(true);
             const result = await getBlogPosts(blogSlug, pg, limit);
-
-            if (pg === 1) {
-                setBlog(result.blog);
-                setPosts(result.posts);
-            } else {
-                setPosts(prev => [...prev, ...result.posts]);
-            }
-            setPage(pg)
-            setTotalPosts(result.totalPosts);
-        } catch (code) {
-            if (pg === 1) {
-                if (code === "404") {
-                    setErr(404);
-                } else if (code === "500") {
-                    setErr(500);
+            if (result.status === "ok") {
+                const data = result.payload
+                if (pg === 1) {
+                    setBlog(data.blog);
+                    setPosts(data.posts);
+                } else {
+                    setPosts(prev => [...prev, ...data.posts]);
                 }
-            } else {
-                setLoadMoreError(code);
+                setPage(pg)
+                setTotalPosts(data.totalPosts);
+            } else if (result.status === "err") {
+                const code = result.payload
+                if (pg === 1) {
+                    if (code === "404") {
+                        setErr(404);
+                    } else {
+                        setErr(500);
+                    }
+                } else {
+                    setLoadMoreError(code);
+                }
             }
+        } catch (err) {
+            setErrMessage(err);
         } finally {
+            if (pg === 1) setPageLoading(false);
             if (pg > 1) setLoadingMore(false);
+
         }
     }
-    if (!blog || loading) return <BlogSkeleton/>
+    if ( pageLoading && (!blog || loading)) return <BlogSkeleton/>
 
     if (err) return (
         <Layout>
-            <ErrorCodeMessage type={"Blog"} code={err}/>
+            <ErrorCodeMessage type={"Blog"} code={err} url={"/"}/>
         </Layout>
     );
 
@@ -80,7 +95,7 @@ export default function Blog() {
                         <div className="rounded-md bg-gray-500 p-3 text-white">
                             <div className="flex items-center justify-between">
                                 <div className="text-3xl mb-3">{blog.blogName}</div>
-                                <DotMenu/>
+                                <DotMenu mode={owner ? "owner" : "user"} link2={`/create/${blogSlug}/edit`}/>
                             </div>
                             <div className="mb-4 w-full flex items-center justify-between">
                                 <ShowcaseUser src={blog.owner.icon} displayName={blog.owner.username} alt="icon"/>
@@ -96,7 +111,7 @@ export default function Blog() {
                         <div>
                             <PageTitle prompt="Top Posts"/>
                             <div>
-                                {posts.map(post => (
+                                {Array.isArray(posts) && posts.length !== 0 ? posts.map(post => (
                                     <div onClick={ () => navigate(`/${blog.blogSlug}/${post.id}`)} key={post.id} className="block m-2 max-w-4xl">
                                         <DatePrompt prompt="Posted" date={post.createdAt}/>
                                         <div className="text-lg mb-2 font-bold">{post.title}</div>
@@ -111,7 +126,7 @@ export default function Blog() {
                                         }
                                         <hr className="m-3 ml-1"/>
                                     </div>
-                                ))
+                                )) : <FullPageNoContent mode="post" owner={owner}/>
                                 }
                             </div>
                             {posts.length < totalPosts && (

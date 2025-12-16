@@ -14,22 +14,25 @@ async function authWare(mode, req=null, userData=null) {
         } else if (mode === "rId") {
             return req ? await User.findOne({ id: req.user.id }) : await User.findOne({ id: userData.id });
         } else if (mode === "w") {
-            const checkedResult = await User.findOne({username: req.body.username});
-            if (checkedResult) {
-                return false;
-            }
-            const salt = await bcrypt.genSalt();
-            const hashedPassword = await bcrypt.hash(req.body.password, salt);
-            const newUser = new User({
-                id: uuidv4(),
-                username: req.body.username,
-                email: req.body.email,
-                password: hashedPassword,
-                joined: new Date(),
-            });
+            try { //This write operation is now ATOMIC
+                const salt = await bcrypt.genSalt();
+                const hashedPassword = await bcrypt.hash(req.body.password, salt);
+                const newUser = new User({
+                    id: uuidv4(),
+                    username: req.body.username,
+                    email: req.body.email,
+                    password: hashedPassword,
+                    joined: new Date(),
+                });
 
-            await newUser.save();
-            return true;
+                await newUser.save();
+                return true;
+            } catch (err) {
+                if (err.code === 11000) {
+                    return false;  //return false when dupe user
+                }
+                throw err;
+            }
         } else if (mode === "a") {
             const allowed = ["email", "password", "icon"];
             const updateFields = {};
@@ -51,11 +54,15 @@ async function authWare(mode, req=null, userData=null) {
                 updateFields.icon = `${req.protocol}://${req.get("host")}/uploads/images/usericons/${req.file.filename}`
             }
 
-            await User.findOneAndUpdate(
+            const updatedResult = await User.findOneAndUpdate(
                 {id: req.user.id},
                 {$set: updateFields},
-                {runValidators: true}
+                {runValidators: true, new: true}
             );
+
+            if (!updatedResult) {
+                throw new Error("Id not found");
+            }
 
             return true;
         } else {

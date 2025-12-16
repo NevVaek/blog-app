@@ -4,6 +4,7 @@ import Blog from "./pages/Blog.jsx";
 import Post from "./pages/Post.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
+import UpdateBlog from "./pages/UpdateBlog.jsx";
 
 import ErrorCleaner from "./services/ErrorCleaner.jsx";
 
@@ -17,6 +18,7 @@ function App() {
                 <Route path="/register" element={<Signup/>}/>
                 <Route path="/:blogSlug" element={<Blog/>}/>
                 <Route path="/:blogSlug/:postId" element={<Post/>}/>
+                <Route path="/create/:blogSlug/edit" element={<UpdateBlog/>}/>
             </Routes>
         </BrowserRouter>
     );
