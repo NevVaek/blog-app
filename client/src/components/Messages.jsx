@@ -8,10 +8,18 @@ export function ErrorMessage({err}) {
     )
 }
 
-export default function DefaultErrorMessage({err}) {
+export function DefaultErrorMessage({err}) {
     return (
         <div className="absolute w-full bg-red-500 p-0.5 pl-3">
             {err}
+        </div>
+    );
+}
+
+export function DefaultSuccessMessage({msg}) {
+    return (
+        <div className="absolute w-full bg-green-500 p-0.5 pl-3">
+            {msg}
         </div>
     );
 }

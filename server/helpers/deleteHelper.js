@@ -5,7 +5,7 @@ import path from "path";
 export default async function deleteWare(mode, paths) {
     try {
         if (mode === "banner") {
-            if (paths.includes("default")) return true;
+            if (path.dirname(paths).includes("defaults")) return true;  // Checks if the parent directory contains the word "defaults"
 
             const localPath = path.join(
                     "uploads/images/banners/", path.basename(paths)     // Convert the filepaths to local dir path

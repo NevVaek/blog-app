@@ -43,9 +43,9 @@ export default function DotMenu({mode, link1, link2, link3}) {
                             <Link to={link2} className="block w-full text-left px-3 py-2 hover:bg-gray-700">
                             Edit
                             </Link>
-                            <Link to={link3} className="block w-full text-left px-3 py-2 text-red-400 hover:bg-gray-700">
+                            <button onClick={link3} className="block w-full text-left px-3 py-2 text-red-400 hover:bg-gray-700">
                                 Delete
-                            </Link>
+                            </button>
                         </>
                     )}
                 </div>

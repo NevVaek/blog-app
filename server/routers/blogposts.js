@@ -189,23 +189,20 @@ blogRouter.patch("/:blogSlug/posts/:postId/edit", validateToken, permissionCheck
     }
 })
 
-blogRouter.delete("/:create/delete/:blogSlug", validateToken, permissionChecker("blog"), async (req, res) => {
+blogRouter.delete("/create/delete/:blogSlug", validateToken, permissionChecker("blog"), async (req, res, next) => {
     try {
         const result = await blogWare("d", req);
 
         if (result === "noBlog") {
-            res.status(404).json({
+            return res.status(404).json({
                 message: "Unknown blog name"
             });
         }
         return res.status(200).json({
             message: "Blog deleted successfully"
         })
-    } catch {
-        console.log("error");
-        return res.status(200).json({
-            message: "Blog deleted successfully"
-        })
+    } catch (err) {
+        next(err);
     }
 })
 

@@ -1,7 +1,7 @@
 import {useState, useEffect, useContext} from "react";
 import Layout from "../components/Layout.jsx";
 import TextInput, {TextBoxInput, UploadInput} from "../components/TextInput.jsx";
-import {FullPageErrorMessage} from "../components/ErrorMessage.jsx";
+import {FullPageErrorMessage} from "../components/Messages.jsx";
 import {BaseButton, SubmitButton} from "../components/Buttons.jsx";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import ProgressRing from "../components/ProgressRing.jsx";
@@ -24,7 +24,7 @@ export default function UpdateBlog() {
     const [preview, setPreview] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [progress, setProgress] = useState(0);
-    const {setErrMessage} = useContext(UtilContext);
+    const {setErrMessage, setSuccessMessage} = useContext(UtilContext);
     const {user} = useContext(AuthContext);
 
     const MAX_FILE_SIZE = 2 * 1024 * 1024; //2MB
@@ -110,6 +110,7 @@ export default function UpdateBlog() {
             const submitRes = await updateBlog(blogSlug, formData, setProgress);
 
             if (submitRes.status === "ok" && submitRes.payload === true) {       //When the user changes the blogName, blogSlug also gets changed. Must update redirect URL too.
+                setSuccessMessage("Blog successfully updated");
                 navigate(`/${blogSlug}`);
             } else if (submitRes.status === "ok") {
                 navigate(`/${submitRes.payload}`)

@@ -2,13 +2,13 @@ import {AuthContext} from "../context/AuthContext.jsx";
 import {UtilContext} from "../context/UtilContext.jsx";
 import {useContext} from "react";
 import SearchBar from "./Searchbar.jsx";
-import DefaultErrorMessage from "./ErrorMessage.jsx";
+import {DefaultErrorMessage, DefaultSuccessMessage} from "./Messages.jsx";
 import {LoginButton, SignupButton, LogoutButton} from "./Buttons.jsx";
 import {Link} from "react-router-dom";
 
 export default function HeaderBar() {
     const {user, loading} = useContext(AuthContext);
-    const {errMessage} = useContext(UtilContext);
+    const {errMessage, successMessage} = useContext(UtilContext);
 
     return (
         <>
@@ -36,6 +36,9 @@ export default function HeaderBar() {
             </div>
             {errMessage && (
               <DefaultErrorMessage err={errMessage}/>
+            )}
+            {successMessage && (
+                <DefaultSuccessMessage msg={successMessage}/>
             )}
         </>
     );

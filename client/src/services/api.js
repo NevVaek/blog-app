@@ -1,5 +1,3 @@
-import {UtilContext} from "../context/UtilContext.jsx";
-import {useContext} from "react";
 import axios from "axios";
 
 const API_URL = "http://localhost:3000";
@@ -20,18 +18,17 @@ export async function loginUser(data) {
 
 
 export function useLogoutUser() {
-    const {setErrMessage} = useContext(UtilContext);
 
     const logoutUser = async() => {
         const res = await fetch(`${API_URL}/auth/logout`, {
             method: "POST",
             credentials: "include",
         });
-
+        const resData = await res.json()
         if (!res.ok) {
-            const errData = await res.json();
-            setErrMessage(errData.message);
+            return {status: "err", payload: resData.message}
         }
+        return {status: "ok", payload: resData.message}
     }
     return logoutUser;
 }
@@ -148,6 +145,30 @@ export async function updateBlog(blogSlug, formData, setState) {
     } catch(err) {
         return {status: "err", payload: err.response.data.message};
     }
+}
+
+export async function deleteBlog(blogSlug) {
+    const res = await fetch(`${API_URL}/create/delete/${blogSlug}`, {
+        method: "DELETE",
+        credentials: "include"
+    });
+    if (!res.ok) {
+        const data = await res.json();
+        return {status: "err", payload: data.message}
+    }
+    return {status: "ok"}
+}
+
+export async function deletePost(blogSlug, postId) {
+    const res = await fetch(`${API_URL}/${blogSlug}/posts/${postId}/delete`, {
+        method: "DELETE",
+        credentials: "include"
+    });
+    if (!res.ok) {
+        const data = await res.json();
+        return {status: "err", payload: data.message}
+    }
+    return {status: "ok"}
 }
 
 

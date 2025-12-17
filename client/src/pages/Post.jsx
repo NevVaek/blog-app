@@ -1,27 +1,39 @@
 import Layout, {PageTitle} from "../components/Layout.jsx";
 import {useState, useEffect, useContext} from "react";
-import {getPost} from "../services/api.js";
+import {deletePost, getPost} from "../services/api.js";
 import {ShowcaseUser} from "../components/Displays.jsx";
 import ImageCarousel from "../components/ImageCarousel.jsx";
-import {ErrorCodeMessage, FullPageNoContent} from "../components/ErrorMessage.jsx"
+import {ErrorCodeMessage, FullPageNoContent} from "../components/Messages.jsx"
 import PostSkeleton from "../components/skeletons/PostSkeleton.jsx";
 import {PostLikeButton, FollowButton} from "../components/Buttons.jsx";
-import {useParams} from "react-router-dom";
+import DotMenu from "../components/DotMenu.jsx";
+import DeleteConfirmation from "../components/DeleteConfirmation.jsx";
+import {useParams, useNavigate} from "react-router-dom";
 import {AuthContext} from "../context/AuthContext.jsx";
 import {UtilContext} from "../context/UtilContext.jsx";
 
 export default function Post() {
     const {blogSlug, postId} = useParams();
+    const navigate = useNavigate();
     const [blog, setBlog] = useState(null);
     const [post, setPost] = useState(null);
     const [err, setErr] = useState(null);
     const [pageLoading, setPageLoading] = useState(true);
-    const {loading} = useContext(AuthContext);
-    const {setErrMessage} = useContext(UtilContext);
+    const [owner, setOwner] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [showDelete, setShowDelete] = useState(false);
+    const {user, loading} = useContext(AuthContext);
+    const {setErrMessage, setSuccessMessage} = useContext(UtilContext);
 
     useEffect(() => {
         load();
     },[postId]);
+
+    useEffect(() => {
+        if (user && blog && (user.id === blog.owner.id || user.id === blog.author.id)) {
+            setOwner(true);
+        }
+    }, [user, blog, post]);
 
     async function load() {
         try {
@@ -46,6 +58,23 @@ export default function Post() {
         }
     }
 
+    async function handleDelete() {
+        try {
+            setDeleting(true);
+            const result = await deletePost(blogSlug, postId);
+            if (result.status === "err") {
+                throw new Error(result.payload);
+            }
+            setSuccessMessage("Post successfully deleted");
+            navigate(`/${blogSlug}`);
+        } catch (err) {
+            setErrMessage(err);
+        } finally {
+            setDeleting(false);
+            setShowDelete(false);
+        }
+    }
+
     if (pageLoading && (!blog || !post || loading)) return <PostSkeleton/>;
 
     if (err) return (
@@ -64,10 +93,13 @@ export default function Post() {
                     </div>
                     <FollowButton/>
                 </div>
-                <div className="px-4 block max-w-4xl min-w-max border">
+                <div className="px-2 block max-w-4xl min-w-max border">
                     <div className="overflow-hidden rounded-lg">
-                        <div>
-                            <div className="text-2xl mb-2">{post.title}</div>
+                        <div className="min-h-44">
+                            <div className="flex items-center justify-between">
+                                <div className="text-2xl mb-2">{post.title}</div>
+                                <DotMenu mode={owner ? "owner" : "user"} link2={`/create/${blogSlug}/edit`} link3={() => setShowDelete(true)}/>
+                            </div>
                             <div className="flex items-center justify-between mb-3">
                                 <ShowcaseUser src={post.author.icon} displayName={post.author.username} alt="icon"/>
                                 <PostLikeButton num={post.stars}/>
@@ -92,11 +124,12 @@ export default function Post() {
                                 <FollowButton/>
                             </div>
                             <div className="mb-4">{blog.followers} Followers</div>
-                            <div className="mb-4">{blog.description} kjsdhfkjfdsha kajsdhf aioehff fkdljsha dffklsewiufh fsjh hkksjfdha lkhfsdkla hiual jha hjsahd fuhijdkh afuihdjksahdjhfjehfnfoan</div>
+                            <div className="mb-4">{blog.description}</div>
                             <ShowcaseUser src={post.author.icon} displayName={post.author.username} alt="icon"/>
                         </div>
                     </div>
                 </div>
+                <DeleteConfirmation open={showDelete} title="Delete Post?" message="This action cannot be reversed" loading={deleting} onConfirm={handleDelete} onCancel={() => setShowDelete(false)}/>
             </div>
         </Layout>
     )

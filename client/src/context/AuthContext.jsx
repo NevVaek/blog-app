@@ -1,10 +1,12 @@
 
-import {createContext, useState, useEffect} from "react";
+import {createContext, useState, useEffect, useContext} from "react";
 import { loginUser, useLogoutUser, checkSession} from "../services/api";
+import { UtilContext } from "./UtilContext.jsx";
 
 export const AuthContext = createContext();
 
 export function AuthProvider({children}) {
+    const {setSuccessMessage, setErrMessage} = useContext(UtilContext);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const logoutUser = useLogoutUser();
@@ -43,8 +45,13 @@ export function AuthProvider({children}) {
     }
 
     const logout = async () => {
-        await logoutUser();
+        const res = await logoutUser();
+        if (res.status === "err") {
+            setErrMessage(res.payload);
+            return;
+        }
         setUser(null);
+        setSuccessMessage("Logged out successfully");
     }
 
     return (

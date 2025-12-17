@@ -6,7 +6,7 @@ import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import UpdateBlog from "./pages/UpdateBlog.jsx";
 
-import ErrorCleaner from "./services/ErrorCleaner.jsx";
+import ErrorCleaner from "./services/MessageCleaner.jsx";
 
 function App() {
     return (

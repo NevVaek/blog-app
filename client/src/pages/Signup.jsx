@@ -5,7 +5,7 @@ import {register, checkUsername} from "../services/api.js"
 
 import TextInput from "../components/TextInput.jsx";
 import {SubmitButton} from "../components/Buttons.jsx";
-import {ErrorMessage} from "../components/ErrorMessage.jsx";
+import {ErrorMessage} from "../components/Messages.jsx";
 
 export default function Signup() {
     const {user} = useContext(AuthContext);

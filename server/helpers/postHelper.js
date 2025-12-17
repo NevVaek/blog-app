@@ -109,19 +109,13 @@ export async function postWare(mode, req) {
             if (!blog) {
                 return "noBlog";
             }
-            const post = await postModel.findOneAndDelete({id: req.params.postId}); //Single atomic operation. Only runs once per request
+            const post = await postModel.findOneAndDelete({id: req.params.postId, author: req.user._id}); //Single atomic operation. Only runs once per request
             if (!post) {
                 return "noPost";
             }
 
             if (post.images && post.images.length > 0) {
-                for (const imgUrl of post.images) {
-                    const filename = imgUrl.split("/").pop();
-                    fs.unlink(`uploads/images/posts/${filename}`, err => {
-                        console.error("Failed to delete", filename);
-                        throw new Error("Bad delete");
-                    });
-                }
+                await deleteWare("post", post.images);
             }
             return true;
         } else {
@@ -227,38 +221,31 @@ export async function blogWare(mode, req) {
             return updateFields.blogName ? updateFields.blogSlug : true;
         } else if (mode === "d") {
 
-            const blog = await blogModel.findOneAndDelete({blogSlug: req.params.blogSlug}, {}); //Single atomic operation. Only runs once per request
+            const blog = await blogModel.findOneAndDelete({blogSlug: req.params.blogSlug, owner: req.user._id}, {}); //Single atomic operation. Only runs once per request
             if (!blog) {
                 return "noBlog";
             }
 
             if (blog.banner) {
-             await fs.promises.unlink(`uploads/images/banners/${blog.banner.split("/").pop()}`);
+                await deleteWare("banner", blog.banner);
             }
 
             const posts = await postModel.find({blogId: blog.id});
             if (posts.length) {
-             for (const post of posts) {
-                 if (post.images && post.images.length > 0) {
-                     await Promise.allSettled(
-                         post.images.map(imgUrl => {
-                             const filename = imgUrl.split("/").pop();
-                             return fs.promises.unlink(`uploads/images/posts/${filename}`)
-                         })
-                     );
+                for (const post of posts) {
+                    if (post.images && post.images.length > 0) {
+                        await deleteWare("post", post.images);
+                    }
+                }
 
-                 }
-             }
+                await postModel.deleteMany({blogId: blog.id, author: req.user._id});
             }
-
-            await postModel.deleteMany({blogId: blog.id});
-
             return true;
 
         } else {
             throw new Error("Unknown mode specified");
         }
-    } catch (err) {
+        } catch (err) {
         throw err
     }
 }

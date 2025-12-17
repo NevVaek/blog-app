@@ -3,7 +3,7 @@ import {useNavigate} from "react-router-dom";
 import {AuthContext} from "../context/AuthContext.jsx";
 
 import TextInput from "../components/TextInput.jsx"
-import {ErrorMessage} from "../components/ErrorMessage.jsx";
+import {ErrorMessage} from "../components/Messages.jsx";
 import {SubmitButton} from "../components/Buttons.jsx";
 
 

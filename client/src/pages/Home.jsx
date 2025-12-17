@@ -2,7 +2,7 @@ import {useEffect, useState, useContext} from "react";
 import {getBlogs} from "../services/api.js";
 import Layout, {PageTitle} from "../components/Layout.jsx"
 import HomeSkeleton from "../components/skeletons/HomeSkeleton.jsx";
-import {FullPageNoContent} from "../components/ErrorMessage.jsx";
+import {FullPageNoContent} from "../components/Messages.jsx";
 import {useNavigate} from "react-router-dom";
 import {ShowcaseUser} from "../components/Displays.jsx";
 import {UtilContext} from "../context/UtilContext.jsx";

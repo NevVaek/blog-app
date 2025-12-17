@@ -1,11 +1,12 @@
 import Layout, {PageTitle} from "../components/Layout.jsx";
-import {getBlogPosts} from "../services/api.js";
+import {getBlogPosts, deleteBlog} from "../services/api.js";
 import {useState, useEffect, useContext} from "react";
 import {useParams, useNavigate} from "react-router-dom";
 import {ShowcaseUser} from "../components/Displays.jsx";
-import {ErrorCodeMessage, FullPageNoContent} from "../components/ErrorMessage.jsx"
+import {ErrorCodeMessage, FullPageNoContent} from "../components/Messages.jsx"
 import BlogSkeleton from "../components/skeletons/BlogSkeleton.jsx";
 import DatePrompt from "../components/DatePrompt.jsx";
+import DeleteConfirmation from "../components/DeleteConfirmation.jsx";
 import {PostLikeButton} from "../components/Buttons.jsx";
 import {AuthContext} from "../context/AuthContext.jsx";
 import {UtilContext} from "../context/UtilContext.jsx";
@@ -23,9 +24,11 @@ export default function Blog() {
     const [loadMoreError, setLoadMoreError] = useState(null);
     const [loadingMore, setLoadingMore] = useState(false);
     const [owner, setOwner] = useState(false);
+    const [showDelete, setShowDelete] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const navigate = useNavigate();
     const {loading, user} = useContext(AuthContext);
-    const {setErrMessage} = useContext(UtilContext);
+    const {setErrMessage, setSuccessMessage} = useContext(UtilContext);
     const limit = 10;
 
     useEffect(() => {
@@ -72,6 +75,24 @@ export default function Blog() {
 
         }
     }
+
+    async function handleDelete() {
+        try {
+            setDeleting(true);
+            const result = await deleteBlog(blogSlug);
+            if (result.status === "err") {
+                throw new Error(result.payload);
+            }
+            setSuccessMessage("Blog successfully deleted");
+            navigate("/");
+        } catch (err) {
+            setErrMessage(err);
+        } finally {
+            setDeleting(false);
+            setShowDelete(false);
+        }
+    }
+
     if ( pageLoading && (!blog || loading)) return <BlogSkeleton/>
 
     if (err) return (
@@ -95,7 +116,7 @@ export default function Blog() {
                         <div className="rounded-md bg-gray-500 p-3 text-white">
                             <div className="flex items-center justify-between">
                                 <div className="text-3xl mb-3">{blog.blogName}</div>
-                                <DotMenu mode={owner ? "owner" : "user"} link2={`/create/${blogSlug}/edit`}/>
+                                <DotMenu mode={owner ? "owner" : "user"} link2={`/create/${blogSlug}/edit`} link3={() => setShowDelete(true)}/>
                             </div>
                             <div className="mb-4 w-full flex items-center justify-between">
                                 <ShowcaseUser src={blog.owner.icon} displayName={blog.owner.username} alt="icon"/>
@@ -144,6 +165,7 @@ export default function Blog() {
                                 </div>
                             )}
                         </div>
+                        <DeleteConfirmation open={showDelete} title="Delete Blog?" message="This action cannot be reversed" loading={deleting} onConfirm={handleDelete} onCancel={() => setShowDelete(false)}/>
                     </div>
                 </div>
             </div>

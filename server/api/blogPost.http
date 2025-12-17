@@ -1,16 +1,16 @@
 POST http://localhost:3000/create/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZkMzkxNzNmLTY3OTUtNDU4MS1iN2Q5LWNjOWM1MTlkZTBlYiIsIl9pZCI6IjY5MmMzY2U4ZjkzNTY5NmNiNDJkMDZmOSIsImlhdCI6MTc2NTQ1OTkzOCwiZXhwIjoxNzY1NDYxNzM4fQ.BMXcRFzGIHWGk2AXv23YXBw86QlPCOJOrx3qgE05ze0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZkMzkxNzNmLTY3OTUtNDU4MS1iN2Q5LWNjOWM1MTlkZTBlYiIsIl9pZCI6IjY5MmMzY2U4ZjkzNTY5NmNiNDJkMDZmOSIsImlhdCI6MTc2NTk3MTYzNSwiZXhwIjoxNzY1OTczNDM1fQ.K_3TQXNYOa2aSLcE7vqYPwNmVit5cbvqf5ybcdfGt4o
 Content-Type: application/json
 
 {
-    "blogName": "Blog6",
+    "blogName": "Blog10",
   "description": "In the year 1874 B.C., gremlins swarmed out from the deepest pits of hell to reaquisition what was truly theirs. They trampled over the primitive civilization of the humans and constructed a utopia where all everyone lived in relative comfort. Tall towers with heights unimaginable to humans pierced throught the clouds and incredible automatons rumbled across the land. Great in'it?"
 }
 
 ###
 
-POST http://localhost:3000/blog-name/posts/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZkMzkxNzNmLTY3OTUtNDU4MS1iN2Q5LWNjOWM1MTlkZTBlYiIsIl9pZCI6IjY5MmMzY2U4ZjkzNTY5NmNiNDJkMDZmOSIsImlhdCI6MTc2NTQ1MTYxNCwiZXhwIjoxNzY1NDUzNDE0fQ.GOeEFj6CDfOfo9nsVgCmJ2eXvq5LUB6ZAUtGc2i_p_M
+POST http://localhost:3000/blog-namee/posts/new HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZkMzkxNzNmLTY3OTUtNDU4MS1iN2Q5LWNjOWM1MTlkZTBlYiIsIl9pZCI6IjY5MmMzY2U4ZjkzNTY5NmNiNDJkMDZmOSIsImlhdCI6MTc2NTk3MTYzNSwiZXhwIjoxNzY1OTczNDM1fQ.K_3TQXNYOa2aSLcE7vqYPwNmVit5cbvqf5ybcdfGt4o
 Content-Type: application/json
 
 {
