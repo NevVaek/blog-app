@@ -70,7 +70,6 @@ export async function checkUsername(username) {
 }
 
 export async function checkBlogName(blogName, id=null){
-    console.log(id)
     const res = await fetch(`${API_URL}/check`, {
         method: "POST",
         body: JSON.stringify({blogName: blogName, blogId: id ? id : null}),

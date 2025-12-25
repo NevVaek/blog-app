@@ -50,12 +50,23 @@ authRouter.post("/login/lgin", async (req, res, next) => {
 authRouter.post("/register/sinup", async (req, res, next) => {
     try {
         const result = await authWare("w", req);
-        if (!result) {
-            return res.status(409).json({
-                message: "Username already exists"
-            });
+        if (result.status === "ok") {
+         return res.status(201).json({message: "Registration successful"});
+        } else if (result.status === "err") {
+            if (result.code === 409) {
+                return res.status(409).json({
+                    message: "Username already exists"
+                });
+            } else if (result.code === 400) {
+                return res.status(400).json({
+                message: result.message
+                })
+            } else {
+                throw new Error(result.message);
+            }
+        } else {
+            throw new Error(`Unknown status value from authHelper.js mode="w", status="${result.status}".`);
         }
-        return res.status(201).json({message: "Registration successful"});
     } catch (err) {
         next(err);
     }

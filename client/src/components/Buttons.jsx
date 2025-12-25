@@ -1,6 +1,5 @@
 import {Link} from "react-router-dom";
-import {AuthContext} from "../context/AuthContext.jsx";
-import {useContext, useState} from "react";
+import {useState} from "react";
 import StarIcon from "../components/icons/StarIcon.jsx";
 
 export function BaseButton({to, onClick, children, className=""}) {
@@ -33,15 +32,6 @@ export function SignupButton({className}) {
     );
 }
 
-export function LogoutButton({className}) {
-    const {logout} = useContext(AuthContext);
-    return (
-        <BaseButton onClick={logout} className={className}>
-            Logout
-        </BaseButton>
-    );
-}
-
 export function SubmitButton({prompt, disable}) {
     return (
         <button type="submit" disabled={disable} className={`${disable ? "opacity-50 cursor-not-allowed" : ""} text-gray-300 text-lg border border-fuchsia-50 rounded-md p-2 hover:bg-gray-700`}>{disable ? "Sending.." : prompt}</button>
@@ -66,5 +56,19 @@ export function PostLikeButton({num}) {
             }}>
                 <StarIcon filled={follow}/> {num}
             </button>
+    )
+}
+export function UserMenuButton({prompt, link="", onClick=null, children}) {
+    if (link) return (
+        <Link to={link} className="flex items-center rounded-md w-48 p-2 font-semibold hover:bg-gray-700">
+            {children}
+            <div className="ml-4">{prompt}</div>
+        </Link>
+    )
+    return (
+        <button onClick={onClick} className="flex items-center rounded-md w-48 p-2 font-semibold hover:bg-gray-700">
+            {children}
+            <div className="ml-4">{prompt}</div>
+        </button>
     )
 }

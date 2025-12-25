@@ -15,6 +15,24 @@ async function authWare(mode, req=null, userData=null) {
             return req ? await User.findOne({ id: req.user.id }) : await User.findOne({ id: userData.id });
         } else if (mode === "w") {
             try { //This write operation is now ATOMIC
+                const stringResult = stringLengthChecker(req.body.username, 20, 5, true);
+                if (stringResult !== true) {
+                    let message = "";
+                    if (stringResult === "TooShort") {
+                        message = "Username cannot be shorter than 5 characters";
+                    } else if (stringResult === "TooLong") {
+                        message = "Username cannot be longer than 20 characters";
+                    } else {
+                        throw new Error("Unknown type in stringLengthChecker in authWare");
+                    }
+                    throw {
+                            name: "ValidationError",
+                            errors: {
+                                username: { message: message}
+                            }
+                        };
+                }
+
                 const salt = await bcrypt.genSalt();
                 const hashedPassword = await bcrypt.hash(req.body.password, salt);
                 const newUser = new User({
@@ -26,12 +44,16 @@ async function authWare(mode, req=null, userData=null) {
                 });
 
                 await newUser.save();
-                return true;
+                return {status: "ok"};
             } catch (err) {
                 if (err.code === 11000) {
-                    return false;  //return false when dupe user
+                    return {status: "err", code: 409, message: "Username already exists"} //returns when dupe user
                 }
-                throw err;
+                if (err.name === "ValidationError") {
+                    const firstError = Object.values(err.errors)[0].message;
+                    return {status: "err", code: 400, message: firstError}
+                }
+                return {status: "err", code: 500, message: err}
             }
         } else if (mode === "a") {
             const allowed = ["email", "password", "icon"];
@@ -83,6 +105,18 @@ export async function fetchUserId(username) {
     } catch(err) {
         throw err;
     }
+}
+
+export function stringLengthChecker(string, max=null, min=null, trim=false) {
+    if (typeof string !== "string") return "NotString";
+    const trimmed = trim ? string.trim() : string;
+
+    if (min && trimmed.length < min) {
+        return "TooShort";
+    } else if (max && trimmed.length > max) {
+        return "TooLong";
+    }
+    return true;
 }
 
 export function permissionChecker(mode) {

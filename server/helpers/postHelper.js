@@ -1,8 +1,8 @@
 import {postModel, blogModel} from "../dbModels/blogPost.js";
+import {stringLengthChecker} from "./authHelper.js";
 import deleteWare from "./deleteHelper.js";
 import {v4 as uuidv4} from "uuid";
 import slugify from "slugify";
-import fs from "fs";
 
 export async function postWare(mode, req) {
     try {
@@ -32,78 +32,152 @@ export async function postWare(mode, req) {
             }
             return result;
         } else if (mode === "w") {
+            try {
+                //return false when blogslug doesn't exist
+                const blogId = await searchBlogNames("slugToId", req.params.blogSlug);
+                if (!blogId) {
+                    throw {name: "InvalidBlogError", message: "Blog could not be found"}
+                }
+                const titleLengthResult = stringLengthChecker(req.body.title, 200);
+                if (titleLengthResult !== true ) {
+                    throw {name: "ValidationError",
+                        errors: {
+                            title: {message: "Post title cannot be longer than 200 characters"}
+                        }
+                    }
+                }
 
-            //return false when blogslug doesn't exist
-            const blogId = await searchBlogNames("slugToId", req.params.blogSlug);
-            if (!blogId) {
-                return false;
-            }
+                const bodyLengthResult = stringLengthChecker(req.body.body, 50000);
+                if (bodyLengthResult !== true) {
+                    throw {name: "ValidationError",
+                        errors: {
+                            title: {message: "Post description cannot be longer than 50000 characters"}
+                        }
+                    }
+                }
 
-            if (req.files) {
-                if (req.files.length > 5) return "exceedMax";
-            }
+                if (req.files) {
+                    if (req.files.length > 5) {
+                        throw {name: "ValidationError",
+                            errors: {
+                                images: {message: "Uploaded file count exceeds allowed limit"}
+                            }
+                        }
+                    }
+                }
 
-            const newPost = new postModel({
-                id: uuidv4(),
-                author: req.user._id,
-                blogId: blogId,
-                title: req.body.title,
-                body: req.body.body,
-                images: req.files ? req.files.map(file =>
-                `${req.protocol}://${req.get("host")}/uploads/images/posts/${file.filename}`
-                ) : []
-            });
-            await newPost.save();
-            return true;
-        } else if (mode === "a") {
-            const blogId = await searchBlogNames("slugToId", req.params.blogSlug);
-            if (!blogId) {
-                return "noBlog";
-            }
-            const post = await postModel.findOne({id: req.params.postId});
-            if (!post) {
-                return "noPost";
-            }
-
-            const allowed = ["title", "body", "images"]
-            const updatePostFields = {}     //Creates container
-
-            for (const key of allowed) {        //Adds the new values to the container
-                if (req.body[key] !== undefined) updatePostFields[key] = req.body[key];
-            }
-            const toDelete = req.body.deletedImages ? JSON.parse(req.body.deletedImages) : null;
-
-            if (toDelete) {
-                updatePostFields.images = post.images.filter(img => !toDelete.includes(img));
-            }
-
-            if (req.files && req.files.length > 0) {
-
-                const newImages = req.files.map(file =>
+                const newPost = new postModel({
+                    id: uuidv4(),
+                    author: req.user._id,
+                    blogId: blogId,
+                    title: req.body.title,
+                    body: req.body.body,
+                    images: req.files ? req.files.map(file =>
                     `${req.protocol}://${req.get("host")}/uploads/images/posts/${file.filename}`
+                    ) : []
+                });
+                await newPost.save();
+                return {status: "ok"};
+            } catch (err) {
+                if (err.name === "ValidationError") {
+                    const firstError = Object.values(err.errors)[0].message;
+                    return {status: "err", code: 400, message: firstError}
+                }
+                if (err.name === "InvalidBlogError") {
+                     return {status: "err", code: 404, message: "Blog could not be found"}
+                }
+                return {status: "err", code: 500, message: err}
+            }
+
+        } else if (mode === "a") {
+            try {
+                const blogId = await searchBlogNames("slugToId", req.params.blogSlug);
+                if (!blogId) {
+                    throw {name: "InvalidError", message: "Blog could not be found"};
+                }
+                const post = await postModel.findOne({id: req.params.postId});
+                if (!post) {
+                    throw {name: "InvalidError", message: "Post could not be found"};
+                }
+
+                const allowed = ["title", "body", "images"]
+                const updatePostFields = {}     //Creates container
+
+                for (const key of allowed) {        //Adds the new values to the container
+                    if (req.body[key] !== undefined) updatePostFields[key] = req.body[key];
+                }
+                const toDelete = req.body.deletedImages ? JSON.parse(req.body.deletedImages) : null;
+
+                if (toDelete) {
+                    updatePostFields.images = post.images.filter(img => !toDelete.includes(img));
+                }
+
+                if (req.files && req.files.length > 0) {
+
+                    const newImages = req.files.map(file =>
+                    `${req.protocol}://${req.get("host")}/uploads/images/posts/${file.filename}`
+                    );
+                    updatePostFields.images = [...updatePostFields.images, ...newImages];
+                }
+
+                if (updatePostFields.title) {
+                    const titleLengthResult = stringLengthChecker(req.body.title, 200);
+                    if (titleLengthResult !== true ) {
+                        throw {name: "ValidationError",
+                            errors: {
+                                title: {message: "Post title cannot be longer than 200 characters"}
+                            }
+                        }
+                    }
+                }
+
+                if (updatePostFields.body) {
+                    const bodyLengthResult = stringLengthChecker(req.body.body, 50000);
+                    if (bodyLengthResult !== true) {
+                        throw {name: "ValidationError",
+                            errors: {
+                                title: {message: "Post description cannot be longer than 50000 characters"}
+                            }
+                        }
+                    }
+                }
+
+                if (updatePostFields.images.length > 5) {
+                    throw {name: "ValidationError",
+                        errors: {
+                            images: {message: "Uploaded file count exceeds allowed limit"}
+                        }
+                    }
+                }
+
+                const updatedResult = await postModel.findOneAndUpdate(
+                    {id: req.params.postId,
+                    author: req.user._id},  // For double protection
+                    {$set: updatePostFields},
+                    {runValidators: true, new: true}
                 );
-                updatePostFields.images = [...updatePostFields.images, ...newImages];
+
+                if (!updatedResult) {
+                    throw {name: "InvalidError", message: "Post could not be found"}
+                }
+
+                if (toDelete) {
+                    await deleteWare("post", toDelete);
+                }
+
+                return {status: "ok"};
+            } catch (err) {
+
+                if (err.name === "ValidationError") {
+                    const firstError = Object.values(err.errors)[0].message;
+                    return {status: "err", code: 400, message: firstError}
+                }
+                if (err.name === "InvalidError") {
+                     return {status: "err", code: 404, message: err.message}
+                }
+                return {status: "err", code: 500, message: err}
             }
 
-            if (updatePostFields.images.length > 5) return "exceedMax";
-
-            const updatedResult = await postModel.findOneAndUpdate(
-                {id: req.params.postId,
-                author: req.user._id        // For double protection
-                },
-                {$set: updatePostFields},
-                {runValidators: true, new: true}
-            );
-
-            if (!updatedResult) {
-                throw new Error("Id not found");
-            }
-
-            if (toDelete) {
-                await deleteWare("post", toDelete);
-            }
-
-            return true;
         } else if (mode === "d") {
             const blog = await blogModel.findOne({blogSlug: req.params.blogSlug});
             if (!blog) {
@@ -145,59 +219,140 @@ export async function blogWare(mode, req) {
             }
             return result
         } else if (mode === "w") {
-            const checkedResult = await checkBlogNameForDupe("new", req.body.blogName);
-            if (checkedResult) {
-                return "exists";
-            }
-            if (!checkString(req.body.blogName)) {
-                return "forbidden"
-            }
-            const newBlog = new blogModel({
-               id: uuidv4(),
-                owner: req.user._id,
-                blogName: req.body.blogName,
-                description: req.body.description,
-                blogSlug: slugify(req.body.blogName, {lower: true, strict: true}),
-                banner: req.file ? `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}` : `${req.protocol}://${req.get("host")}/uploads/images/banners/defaults/default${getRandomInt(1, 17)}.jpg`
-            });
-            await newBlog.save();
-            return true;
-        } else if (mode === "a") {
-            const blogId = await searchBlogNames("slugToId", req.params.blogSlug);
-            if (!blogId) {
-                return "noBlog";
-            }
-            const blog = await blogModel.findOne({ id: blogId });
-            const oldBannerPath = blog.banner;
-
-            const allowed = ["blogName","description", "banner"];
-            const updateFields = {}
-
-            for (const key of allowed) {
-                if (req.body[key] !== undefined) updateFields[key] = req.body[key];
-            }
-
-            if (Object.keys(updateFields).length === 0) {
-                return "empty";
-            }
-
-            if (req.file) {
-                updateFields.banner = `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}`
-            }
-
-            if (updateFields.blogName) {
-                if (!checkString(updateFields.blogName)) {
-                    return "forbidden";
-                }
-                 const checkedResult = await checkBlogNameForDupe("update", updateFields.blogName, blogId);
-                if (checkedResult) {
-                    return "exists";
-                }
-
-                updateFields.blogSlug = slugify(updateFields.blogName, { lower: true });
-            }
-
             try {
+                const nameLengthResult = stringLengthChecker(req.body.blogName, 50, 5, true);
+                if (nameLengthResult !== true) {
+                    let message = "";
+                    if (nameLengthResult === "TooShort") {
+                        message = "Blog name cannot be shorter than 5 characters";
+                    } else if (nameLengthResult === "TooLong") {
+                        message = "Blog name cannot be longer than 50 characters";
+                    } else {
+                        throw new Error("Unknown type in stringLengthChecker for blogWare");
+                    }
+                    throw {
+                            name: "ValidationError",
+                            errors: {
+                                blogName: { message: message}
+                            }
+                        };
+                }
+
+                const descLengthResult = stringLengthChecker(req.body.description, 3000);
+                if (descLengthResult !== true) {
+                    throw {
+                        name: "ValidationError",
+                            errors: {
+                                description: { message: "Blog description cannot be longer than 3000 characters"}
+                            }
+                    }
+                }
+
+                const checkedResult = await checkBlogNameForDupe("new", req.body.blogName);
+                if (checkedResult) {
+                    throw {name: "ConflictError", code: 11000, message: "exists"}
+                }
+                if (!checkString(req.body.blogName)) {
+                    throw {name: "ValidationError", errors: {message: "Blog name can only contain letters, numbers, spaces, underscores, and hyphens"}}
+                }
+                const newBlog = new blogModel({
+                    id: uuidv4(),
+                    owner: req.user._id,
+                    blogName: req.body.blogName,
+                    description: req.body.description,
+                    blogSlug: slugify(req.body.blogName, {lower: true, strict: true}),
+                    banner: req.file ? `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}` : `${req.protocol}://${req.get("host")}/uploads/images/banners/defaults/default${getRandomInt(1, 17)}.jpg`
+                });
+                await newBlog.save();
+                return {status: "ok"};
+            } catch (err) {
+                if (err.code === 11000) {
+                    return {status: "err", code: 409, message: "Blog name already exists"} //returns when dupe user
+                }
+                if (err.name === "ValidationError") {
+                    const firstError = Object.values(err.errors)[0].message;
+                    return {status: "err", code: 400, message: firstError}
+                }
+                return {status: "err", code: 500, message: err}
+            }
+
+        } else if (mode === "a") {
+            try {
+                const blogId = await searchBlogNames("slugToId", req.params.blogSlug);
+                if (!blogId) {
+                    throw {name: "InvalidBlogError", message: "Blog name could not be found"}
+                }
+
+                const blog = await blogModel.findOne({ id: blogId });
+                const oldBannerPath = blog.banner;
+                const allowed = ["blogName","description", "banner"];
+                const updateFields = {}
+
+                for (const key of allowed) {    // Checks that the request is not trying to update an unauthorized value then adds to updateFields.
+                    if (req.body[key] !== undefined) updateFields[key] = req.body[key];
+                }
+
+                if (Object.keys(updateFields).length === 0) {       //Checks that the form is not empty.
+                    throw {
+                            name: "ValidationError",
+                            errors: {
+                                blogName: { message: "Form empty. Blog has not been altered."}
+                            }
+                        };
+                }
+
+                if (req.file) {     // Overwrites the filepath in updateFields with the correctly altered path.
+                    updateFields.banner = `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}`
+                }
+
+                if (updateFields.blogName) {  // Only runs if the blog name value has been changed. Checks if the new name meets the limitations
+                    const nameLengthResult = stringLengthChecker(req.body.blogName, 50, 5, true);  //Checks if the blog name meets length limit
+                    if (nameLengthResult !== true) {
+                        let errMessage = "";
+                        if (nameLengthResult === "TooShort") {
+                            errMessage = "Blog name cannot be shorter than 5 characters";
+                        } else if (nameLengthResult === "TooLong") {
+                            errMessage = "Blog name cannot be longer than 50 characters";
+                        } else {
+                            throw new Error("Unknown type in stringLengthChecker for blogWare");
+                        }
+                        throw {
+                            name: "ValidationError",
+                            errors: {
+                                blogName: { message: errMessage}
+                            }
+                        };
+                    }
+
+                    if (!checkString(updateFields.blogName)) {      // Checks if the blog name contains illegal characters
+                        throw {
+                            name: "ValidationError",
+                            errors: {
+                                blogName: { message: "Blog name should only contain letters, numbers, spaces, underscores, and hyphens."}
+                            }
+                        }
+                    }
+
+                    const checkedResult = await checkBlogNameForDupe("update", updateFields.blogName, blogId);    //Checks if the blog name already exists in db
+                    if (checkedResult) {
+                        throw {name: "ConflictError", code: 11000, message: "Blog name already taken"}
+                    }
+
+                    updateFields.blogSlug = slugify(updateFields.blogName, { lower: true });    // Finally, if everything meets requirement, create a blogSlug and add to updateFields
+                }
+
+                if (updateFields.description) {
+                    const descLengthResult = stringLengthChecker(req.body.description, 3000);
+                    if (descLengthResult !== true) {
+                        throw {
+                            name: "ValidationError",
+                                errors: {
+                                    description: { message: "Blog description cannot be longer than 3000 characters"}
+                                }
+                        }
+                    }
+                }
+
                 const updateResult = await blogModel.findOneAndUpdate(   //Single atomic operation. Only runs once per request
                     {id: blogId,
                     owner: req.user._id
@@ -205,20 +360,29 @@ export async function blogWare(mode, req) {
                     {$set: updateFields},
                     {runValidators: true}
                 );
-                if (!updateResult) {
-                    throw new Error("Id not found");
+                if (!updateResult) {    // If the blog Id cannot be found, throw error.
+                    throw {name: "InvalidBlogError", message: "Blog name not found"};
                 }
 
+                if (updateFields.banner && oldBannerPath) {
+                    await deleteWare("banner", oldBannerPath);
+                }
+
+                return {status: "ok", data: updateFields.blogName ? updateFields.blogSlug : true};
+
             } catch (err) {
-                if (err.code === 11000) return "exists";
-                throw new Error("Something went wrong");
+                if (err.code === 11000) {
+                    return {status: "err", code: 409, message: "Blog name already taken"}
+                }
+                if (err.name === "ValidationError") {
+                    const firstError = Object.values(err.errors)[0].message;
+                    return {status: "err", code: 400, message: firstError}
+                } else if (err.name === "InvalidBlogError") {
+                    return {status: "err", code: 404, message: err.message}
+                } else {
+                    throw new Error(err);
+                }
             }
-
-            if (req.file && oldBannerPath) {
-                await deleteWare("banner", oldBannerPath);
-            }
-
-            return updateFields.blogName ? updateFields.blogSlug : true;
         } else if (mode === "d") {
 
             const blog = await blogModel.findOneAndDelete({blogSlug: req.params.blogSlug, owner: req.user._id}, {}); //Single atomic operation. Only runs once per request
@@ -245,7 +409,7 @@ export async function blogWare(mode, req) {
         } else {
             throw new Error("Unknown mode specified");
         }
-        } catch (err) {
+    } catch (err) {
         throw err
     }
 }
@@ -293,7 +457,7 @@ async function checkBlogNameForDupe(mode, nameData, blogIdData=null) {
             if (!result) {
                 return false;
             }
-            return !result.id === blogIdData   //For the mode "update", if the result blog and the checking blog is the same, pass
+            return result.id !== blogIdData   //For the mode "update", if the result blog and the checking blog is the same, pass
         }
         return false;
     } catch {

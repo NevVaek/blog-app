@@ -91,14 +91,26 @@ blogRouter.get("/:blogSlug/posts/:postId", async(req, res, next) => {
 blogRouter.post("/:blogSlug/posts/new", validateToken, permissionChecker("blog"), uploadPostImages.array("images", 5), async(req, res, next) => {
     try {
         const result = await postWare("w", req);
-        if (!result) {
-            return res.status(404).json({
-                message: "Unknown blog name"
-            })
-        } else {
+
+        if (result.status === "ok") {
             return res.status(201).json({
                 message: "Post successful"
             });
+        } else if (result.status === "err") {
+            if (result.code === 400) {
+                return res.status(400).json({
+                    message: result.message
+                });
+            } else if (result.code === 404) {
+                return res.status(404).json({
+                    message: "Unknown blog name"
+                });
+            } else {
+                console.log(result.message);
+                throw new Error("something went wrong");
+            }
+        } else {
+            throw new Error(`Unknown status value from postHelper.js mode="w", status="${result.status}"`);
         }
     } catch(err) {
         next(err);
@@ -108,18 +120,27 @@ blogRouter.post("/:blogSlug/posts/new", validateToken, permissionChecker("blog")
 blogRouter.post("/create/new", validateToken, uploadBanner.single("banner"), async (req, res, next) => {
     try {
         const result = await blogWare("w", req);
-        if (result === "exists") {
-            return res.status(409).json({
-                message: "Blog name already taken"
+
+        if (result.status === "ok") {
+            return res.status(201).json({
+                message: "Blog successfully created"
             });
-        } else if (result === "forbidden") {
-            return res.status(400).json({
-                message: "Blog name can only contain letters, numbers, spaces, underscores, and hyphens."
-            });
+        } else if (result.status === "err") {
+            if (result.code === 409) {
+                return res.status(409).json({
+                    message: "Blog name already taken"
+                });
+            } else if (result.code === 400) {
+                return res.status(400).json({
+                    message: result.message
+                });
+            } else {
+                console.log(result.message);
+                throw new Error("something went wrong");
+            }
+        } else {
+            throw new Error(`Unknown status value from postHelper.js mode="w", status="${result.status}"`);
         }
-        return res.status(201).json({
-            message: "Blog successfully created"
-        });
     } catch (err) {
         next(err);
     }
@@ -129,7 +150,7 @@ blogRouter.post("/check/", async (req, res, next) => {
     try {
         const result = req.body.blogId ? await blogWare("rOneNameUpdate", req) : await blogWare("rOneNameNew", req);
         return res.status(200).json({
-            result: !!result
+            result: result
         });
     } catch (err) {
         next(err);
@@ -138,28 +159,33 @@ blogRouter.post("/check/", async (req, res, next) => {
 
 blogRouter.patch("/create/update/:blogSlug", validateToken, permissionChecker("blog"), uploadBanner.single("banner"), async (req, res, next) => {
     try {
-        const result = await blogWare("a", req)
-        if (result === "noBlog") {
-            return res.status(404).json({
-                message: "Unknown blog name"
+        const result = await blogWare("a", req);
+
+        if (result.status === "ok") {
+            return res.status(200).json({
+                message: "Post updated successfully",
+                newBlogSlug: result.data
             });
-        } else if (result === "empty") {
-            return res.status(400).json({
-                message: "Form empty"
-            })
-        } else if (result === "forbidden") {
-            return res.status(400).json({
-                message: "Blog name should only contain letters, numbers, spaces, underscores, and hyphens."
-            });
-        } else if (result === "exists") {
-            return res.status(409).json({
-                message: "Blog name already taken"
-            });
+        } else if (result.status === "err") {
+            if (result.code === 409) {
+                    return res.status(409).json({
+                    message: "Blog name already taken"
+                });
+            } else if (result.code === 400) {
+                return res.status(400).json({
+                    message: result.message
+                });
+            } else if (result.code === 404) {
+                return res.status(404).json({
+                    message: result.message
+                });
+            } else {
+                console.log(result.message);
+                throw new Error("something went wrong");
+            }
+        } else {
+                throw new Error(`Unknown status value from postHelper.js mode="a" status="${result.status}"`);
         }
-        return res.status(200).json({
-            message: "Post updated successfully",
-            newBlogSlug: result
-        });
     } catch(err) {
         next(err);
     }
@@ -168,22 +194,36 @@ blogRouter.patch("/create/update/:blogSlug", validateToken, permissionChecker("b
 blogRouter.patch("/:blogSlug/posts/:postId/edit", validateToken, permissionChecker("post"), async (req, res, next) => {
     try {
         const result = await postWare("a", req);
+        if (result.status === "ok") {
+            return res.status(200).json({
+                message: "Post updated successfully"
+            });
+        } else if (result.status === "err") {
+            if (result.code === 400) {
+                return res.status(400).json({
+                    message: result.message
+                });
+            } else if (result.code === 404) {
+                return res.status(404).json({
+                    message: result.message
+                });
+            } else {
+                console.log(result.message);
+                throw new Error("something went wrong");
+            }
+        } else {
+                throw new Error(`Unknown status value from postHelper.js mode="a" status="${result.status}"`);
+        }
+
         if (result === "noBlog") {
             return res.status(404).json({
                 message: `Couldn't find blog. It doesn't exist.`
             });
         } else if (result === "noPost") {
-            return res.status(404).json({
-                message: `Couldn't find specified post.`
-            });
+
         } else if (result === "exceedMax") {
-            return res.status(400).json({
-                message: "Number of uploaded files exceed limit"
-            });
+
         }
-        return res.status(200).json({
-            message: "Post updated successfully"
-        });
     } catch(err) {
         next(err);
     }

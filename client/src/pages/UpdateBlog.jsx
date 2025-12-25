@@ -113,7 +113,7 @@ export default function UpdateBlog() {
                 setSuccessMessage("Blog successfully updated");
                 navigate(`/${blogSlug}`);
             } else if (submitRes.status === "ok") {
-                navigate(`/${submitRes.payload}`)
+                navigate(`/${submitRes.payload}`);
             } else if (submitRes.status === "err") {
                 throw submitRes.payload
             }

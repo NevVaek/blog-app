@@ -27,8 +27,6 @@ app.use((req, res, next) => {
 app.use("/auth", authRouter);
 app.use("/", blogRouter);
 app.use("/account/", accountRouter);
-
-
 app.use("/uploads", express.static("./uploads"));
 
 app.use((err, req, res, next) => {
@@ -44,10 +42,6 @@ mongoose.connect(`mongodb://localhost:27017/${dbConfig.dbName}`)
         migrateBlogSlugs();
     }).catch(() => {
         console.log("Connection to database failed");
-});
-
-app.get("/api/posts", (req, res) => {
-    res.json([{id: 1, title: "Hellow World", body: "This is a test post"}]);
 });
 
 const port = 3000;

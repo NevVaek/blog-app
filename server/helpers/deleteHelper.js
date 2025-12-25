@@ -11,7 +11,13 @@ export default async function deleteWare(mode, paths) {
                     "uploads/images/banners/", path.basename(paths)     // Convert the filepaths to local dir path
                 );
 
-            await fs.unlink(localPath);
+            await fs.unlink(localPath, (err) => {
+                if (err) {
+                    console.error(`Failed to delete file for mode: ${mode}, file: ${localPath}`);
+                } else {
+                    console.log(`File deleted for mode: ${mode}`);
+                }
+            });
             return true;
         } else if (mode === "post") {
             if (!Array.isArray(paths)) {                                // Checks if the "paths" is an array before proceeding
@@ -22,7 +28,11 @@ export default async function deleteWare(mode, paths) {
                 paths.map(filePath => {
                     const localPath = path.join(                // Convert the filepaths to local dir path
                     "uploads/images/posts/", path.basename(filePath));
-                    fs.unlink(localPath);
+                    fs.unlink(localPath, (err) => {
+                        if (err) {
+                            console.error(`Failed to delete file for mode: ${mode}, file: ${localPath}`);
+                        }
+                    });
                 })
             );
             return true;
