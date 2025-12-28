@@ -113,7 +113,25 @@ export async function getPost(blogSlug, postId){
         return {status: "err", payload: res.status.toString()};
     }
     const resData = await res.json();
+    console.log(resData)
     return {status: "ok", payload: resData}
+}
+
+
+export async function createBlog(formData, setState) {
+    try {
+        const res = await axios.post(`${API_URL}/create/new`, formData, {
+            withCredentials: true,
+            onUploadProgress: (e) => {
+                const percent = Math.round((e.loaded * 100) / e.total);
+                setState(percent);
+            }
+        });
+
+        return {status: "ok", payload: res.data.newBlogSlug}
+    } catch(err) {
+        return {status: "err", payload: err.response.data.message}
+    }
 }
 
 export async function updateBlog(blogSlug, formData, setState) {

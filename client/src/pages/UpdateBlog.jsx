@@ -5,6 +5,7 @@ import {FullPageErrorMessage} from "../components/Messages.jsx";
 import {BaseButton, SubmitButton} from "../components/Buttons.jsx";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import ProgressRing from "../components/ProgressRing.jsx";
+import BlogPreview from "../components/BlogPreview.jsx";
 import {useParams, useNavigate} from "react-router-dom";
 import {UtilContext} from "../context/UtilContext.jsx";
 import {AuthContext} from "../context/AuthContext.jsx";
@@ -17,8 +18,8 @@ export default function UpdateBlog() {
     const navigate = useNavigate();
     const [blog, setBlog] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [name, setName] = useState(null);
-    const [desc, setDesc] = useState(null);
+    const [name, setName] = useState("");
+    const [desc, setDesc] = useState("");
     const [banner, setBanner] = useState(null);
     const [ok, setOk] = useState(true);
     const [preview, setPreview] = useState(null);
@@ -49,11 +50,13 @@ export default function UpdateBlog() {
         try {
             const result = await getBlog(blogSlug);
 
+            const normalizeText = (text) => text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
             if (result.status === "ok") {    //BE CARFUL HOW YOU HANDLE BANNER URL. REMEMBER: AFTER SUBMISSION, THE URL GETS MODIFIED. MAKE SURE IT DOESN@T GET MODIFIED TWICE
                 const data = result.payload;
                 setBlog(data.blog);
                 setName(data.blog.blogName);
-                setDesc(data.blog.description || "");
+                setDesc(normalizeText(data.blog.description) || "");
             } else if (result.status === "err") {
                 const err = result.payload;
                 if (err === "404") {
@@ -72,7 +75,6 @@ export default function UpdateBlog() {
     async function handleSubmit(e) {
         e.preventDefault();
         if (submitting) return;
-
         setSubmitting(true);
         setErrMessage(null);
 
@@ -111,9 +113,9 @@ export default function UpdateBlog() {
 
             if (submitRes.status === "ok" && submitRes.payload === true) {       //When the user changes the blogName, blogSlug also gets changed. Must update redirect URL too.
                 setSuccessMessage("Blog successfully updated");
-                navigate(`/${blogSlug}`);
+                navigate(`/blogs/${blogSlug}`);
             } else if (submitRes.status === "ok") {
-                navigate(`/${submitRes.payload}`);
+                navigate(`/blogs/${submitRes.payload}`);
             } else if (submitRes.status === "err") {
                 throw submitRes.payload
             }
@@ -145,55 +147,17 @@ export default function UpdateBlog() {
         )
     }
 
-
-
     return (
         <Layout>
             <div className="mx-auto max-w-[78rem] lg:grid grid-cols-[30rem_minmax(0,4fr)] gap-2">
-                <div className="border p-3 rounded-lg">
-                    <div className="mb-2 text-xl">Preview</div>
-                    <div className="max-h-20 max-w-full m-2 overflow-hidden rounded-lg">
-                        <img src={preview || blog.banner} alt="preview" className="h-40 w-full object-cover object-center bg-gray-600"/>
-                    </div>
-                    <div className="rounded-md bg-gray-500 p-3 text-white">
-                            <div className="flex items-center justify-between">
-                                <div className="text-xl mb-2">{name}</div>
-                            </div>
-                            <div className="mb-2 w-full flex items-center justify-between">
-                                <ShowcaseUser mode="preview" src={blog.owner.icon} displayName={blog.owner.username} alt="icon"/>
-                            </div>
-                            <div className="whitespace-pre-wrap text-sm">
-                                {desc}
-                            </div>
-                    </div>
-                    <div>
-                        <div>
-                            <div className="mb-3">Top Posts<hr/></div>
-                                <div className="m-2">
-                                    {/* Post title */}
-                                    <div className="h-6 w-40 bg-gray-700 rounded mb-3"></div>
-
-                                    {/* Post user */}
-                                    <div className="flex items-center mb-3">
-                                        <div className="w-6 h-6 bg-gray-700 rounded-full mr-3"></div>
-                                        <div className="h-4 w-24 bg-gray-700 rounded"></div>
-                                    </div>
-
-                                    {/* Post body/image */}
-                                    <div className="w-full h-32 bg-gray-700 rounded"></div>
-
-                                    <hr className="m-3 border-gray-700" />
-                                </div>
-                        </div>
-                    </div>
-                </div>
+                <BlogPreview blog={blog} preview={preview} descText={desc} name={name}/>
                 <form onSubmit={handleSubmit} className="p-3">
-                    <TextInput label="Blog Name" value={name || ""} onChange={(e) => {
+                    <TextInput label="Blog Name" value={name || ""} maxL={50} currentL={name.length} onChange={(e) => {
                             setName(e.target.value);
                             setOk(false);
                         }
                     }/>
-                    <TextBoxInput rows="5" cols="40" label="Description" name="description" value={desc || ""} onChange={(e) => setDesc(e.target.value)}/>
+                    <TextBoxInput rows="5" cols="40" label="Description" name="description" value={desc || ""} maxL={1500} currentL={desc.length} onChange={(e) => setDesc(e.target.value)}/>
                     <UploadInput accept="image/*" label="Banner" onChange={handleFileChange} maxFileSize={MAX_FILE_SIZE}/>
                     <div className="flex items-center">
                         <SubmitButton prompt="Update" disable={submitting}/>

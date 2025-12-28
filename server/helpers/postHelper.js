@@ -46,8 +46,8 @@ export async function postWare(mode, req) {
                         }
                     }
                 }
-
-                const bodyLengthResult = stringLengthChecker(req.body.body, 50000);
+                const normalizedBody = typeof req.body.body === "string" ? normalizeString(req.body.body) : "";
+                const bodyLengthResult = stringLengthChecker(normalizedBody, 50000);
                 if (bodyLengthResult !== true) {
                     throw {name: "ValidationError",
                         errors: {
@@ -71,7 +71,7 @@ export async function postWare(mode, req) {
                     author: req.user._id,
                     blogId: blogId,
                     title: req.body.title,
-                    body: req.body.body,
+                    body: normalizedBody,
                     images: req.files ? req.files.map(file =>
                     `${req.protocol}://${req.get("host")}/uploads/images/posts/${file.filename}`
                     ) : []
@@ -132,7 +132,8 @@ export async function postWare(mode, req) {
                 }
 
                 if (updatePostFields.body) {
-                    const bodyLengthResult = stringLengthChecker(req.body.body, 50000);
+                    updatePostFields.body = typeof updatePostFields.body ? normalizeString(updatePostFields.body) : "";
+                    const bodyLengthResult = stringLengthChecker(updatePostFields.body, 50000);
                     if (bodyLengthResult !== true) {
                         throw {name: "ValidationError",
                             errors: {
@@ -237,8 +238,8 @@ export async function blogWare(mode, req) {
                             }
                         };
                 }
-
-                const descLengthResult = stringLengthChecker(req.body.description, 3000);
+                const normalizedDesc = typeof req.body.description === "string" ? normalizeString(req.body.description) : "";
+                const descLengthResult = stringLengthChecker(normalizedDesc, 3000);
                 if (descLengthResult !== true) {
                     throw {
                         name: "ValidationError",
@@ -255,16 +256,17 @@ export async function blogWare(mode, req) {
                 if (!checkString(req.body.blogName)) {
                     throw {name: "ValidationError", errors: {message: "Blog name can only contain letters, numbers, spaces, underscores, and hyphens"}}
                 }
+                const newBlogSlug = slugify(req.body.blogName, {lower: true, strict: true});
                 const newBlog = new blogModel({
                     id: uuidv4(),
                     owner: req.user._id,
                     blogName: req.body.blogName,
-                    description: req.body.description,
-                    blogSlug: slugify(req.body.blogName, {lower: true, strict: true}),
+                    description: normalizedDesc,
+                    blogSlug: newBlogSlug,
                     banner: req.file ? `${req.protocol}://${req.get("host")}/uploads/images/banners/${req.file.filename}` : `${req.protocol}://${req.get("host")}/uploads/images/banners/defaults/default${getRandomInt(1, 17)}.jpg`
                 });
                 await newBlog.save();
-                return {status: "ok"};
+                return {status: "ok", data: newBlogSlug};
             } catch (err) {
                 if (err.code === 11000) {
                     return {status: "err", code: 409, message: "Blog name already exists"} //returns when dupe user
@@ -342,12 +344,13 @@ export async function blogWare(mode, req) {
                 }
 
                 if (updateFields.description) {
-                    const descLengthResult = stringLengthChecker(req.body.description, 3000);
+                    updateFields.description = typeof updateFields.description === "string" ? normalizeString(updateFields.description) : "";
+                    const descLengthResult = stringLengthChecker(updateFields.description, 1500);
                     if (descLengthResult !== true) {
                         throw {
                             name: "ValidationError",
                                 errors: {
-                                    description: { message: "Blog description cannot be longer than 3000 characters"}
+                                    description: { message: "Blog description cannot be longer than 1500 characters"}
                                 }
                         }
                     }
@@ -444,7 +447,11 @@ function checkString(name) {
     }
     const regex = /^[a-zA-Z0-9 _-]+$/;
 
-    return regex.test(name)
+    return regex.test(name);
+}
+
+function normalizeString(string) {
+    return string.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 }
 
 async function checkBlogNameForDupe(mode, nameData, blogIdData=null) {

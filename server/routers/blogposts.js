@@ -68,7 +68,7 @@ blogRouter.get("/:blogSlug", async(req, res, next) => {
 blogRouter.get("/:blogSlug/posts/:postId", async(req, res, next) => {
     try {
         const result = await blogWare("rOne", req);
-        if (result === "noBlog") {
+        if (!result) {
             return res.status(404).json({
                 message: `Couldn't find blog ${req.params.blogSlug}. It exists not`
             });
@@ -123,7 +123,8 @@ blogRouter.post("/create/new", validateToken, uploadBanner.single("banner"), asy
 
         if (result.status === "ok") {
             return res.status(201).json({
-                message: "Blog successfully created"
+                message: "Blog successfully created",
+                newBlogSlug: result.data
             });
         } else if (result.status === "err") {
             if (result.code === 409) {

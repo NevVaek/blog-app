@@ -5,6 +5,7 @@ import Post from "./pages/Post.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import UpdateBlog from "./pages/UpdateBlog.jsx";
+import CreateBlog from "./pages/CreateBlog.jsx";
 
 import ErrorCleaner from "./services/MessageCleaner.jsx";
 
@@ -13,12 +14,13 @@ function App() {
         <BrowserRouter>
             <ErrorCleaner/>
             <Routes>
-                <Route path="/" element={<Home/>} />
                 <Route path="/login" element={<Login/>}/>
                 <Route path="/register" element={<Signup/>}/>
-                <Route path="/:blogSlug" element={<Blog/>}/>
-                <Route path="/:blogSlug/:postId" element={<Post/>}/>
+                <Route path="/create/new" element={<CreateBlog/>}/>
                 <Route path="/create/:blogSlug/edit" element={<UpdateBlog/>}/>
+                <Route path="/blogs/:blogSlug/posts/:postId" element={<Post/>}/>
+                <Route path="/blogs/:blogSlug" element={<Blog/>}/>
+                <Route path="/" element={<Home/>} />
             </Routes>
         </BrowserRouter>
     );

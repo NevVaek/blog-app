@@ -12,6 +12,7 @@ import {AuthContext} from "../context/AuthContext.jsx";
 import {UtilContext} from "../context/UtilContext.jsx";
 import {FollowButton} from "../components/Buttons.jsx";
 import DotMenu from "../components/DotMenu.jsx";
+import ExpandableDesc from "../components/ExpandableDesc.jsx";
 
 export default function Blog() {
     const {blogSlug} = useParams();
@@ -115,7 +116,7 @@ export default function Blog() {
                     </div>
                         <div className="rounded-md bg-gray-500 p-3 text-white">
                             <div className="flex items-center justify-between">
-                                <div className="text-3xl mb-3">{blog.blogName}</div>
+                                <div className="text-3xl mb-3 break-all">{blog.blogName}</div>
                                 <DotMenu mode={owner ? "owner" : "user"} link2={`/create/${blogSlug}/edit`} link3={() => setShowDelete(true)}/>
                             </div>
                             <div className="mb-4 w-full flex items-center justify-between">
@@ -125,17 +126,15 @@ export default function Blog() {
                                     <FollowButton/>
                                 </div>
                             </div>
-                            <div className="whitespace-pre-wrap">
-                                {blog.description}
-                            </div>
+                            <ExpandableDesc text={blog.description} lines={3}/>
                         </div>
                         <div>
                             <PageTitle prompt="Top Posts"/>
                             <div>
                                 {Array.isArray(posts) && posts.length !== 0 ? posts.map(post => (
-                                    <div onClick={ () => navigate(`/${blog.blogSlug}/${post.id}`)} key={post.id} className="block m-2 max-w-4xl">
+                                    <div onClick={ () => navigate(`/blogs/${blog.blogSlug}/posts/${post.id}`)} key={post.id} className="block m-2 max-w-4xl">
                                         <DatePrompt prompt="Posted" date={post.createdAt}/>
-                                        <div className="text-lg mb-2 font-bold">{post.title}</div>
+                                        <div className="text-lg mb-2 font-bold break-words">{post.title}</div>
                                         <div className="mb-3 flex items-center w-full justify-between">
                                             <ShowcaseUser src={post.author.icon} displayName={post.author.username} alt="icon"/>
                                             <PostLikeButton num={post.stars}/>
@@ -143,7 +142,7 @@ export default function Blog() {
                                         {post.images && post.images.length > 0 ? (
                                             <div className="flex justify-center">
                                                 <img src={post.images[0]} alt="image1"/>
-                                            </div>) : (<div>{post.body}</div>)
+                                            </div>) : (<div className="break-words">{post.body}</div>)
                                         }
                                         <hr className="m-3 ml-1"/>
                                     </div>

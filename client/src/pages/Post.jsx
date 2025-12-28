@@ -27,7 +27,7 @@ export default function Post() {
 
     useEffect(() => {
         load();
-    },[postId]);
+    },[blogSlug, postId]);
 
     useEffect(() => {
         if (user && blog && (user.id === blog.owner.id || user.id === blog.author.id)) {
@@ -66,7 +66,7 @@ export default function Post() {
                 throw new Error(result.payload);
             }
             setSuccessMessage("Post successfully deleted");
-            navigate(`/${blogSlug}`);
+            navigate(`/blogs/${blogSlug}`);
         } catch (err) {
             setErrMessage(err);
         } finally {
@@ -79,7 +79,7 @@ export default function Post() {
 
     if (err) return (
         <Layout>
-            <ErrorCodeMessage type={"Post"} code={err} url={`/${blogSlug}`}/>
+            <ErrorCodeMessage type={"Post"} code={err} url={blog ? `/blogs/${blogSlug}` : "/"}/>
         </Layout>
     )
 
@@ -88,7 +88,7 @@ export default function Post() {
             <div className="mx-auto max-w-[78rem] md:grid grid-cols-[minmax(0,4fr)_20rem] gap-2">
                 <div className="flex items-center justify-between bg-black h-14 rounded-lg mb-4 p-2 md:hidden">
                     <div className="flex items-center">
-                        <div className="mr-3 font-bold">{blog.blogName}</div>
+                        <div className="mr-3 font-bold break-all">{blog.blogName}</div>
                         <div className="text-xs">{blog.followers} Followers</div>
                     </div>
                     <FollowButton/>
@@ -108,7 +108,7 @@ export default function Post() {
                                 <ImageCarousel images={post.images}/>
                             )}
                             {post.body && (
-                                <div>{post.body}</div>
+                                <div className="break-words">{post.body}</div>
                             )}
                         </div>
                     </div>
@@ -120,11 +120,11 @@ export default function Post() {
                         </div>
                         <div className="px-3">
                             <div className="flex items-center justify-between mt-5">
-                                <div className="font-bold">{blog.blogName}</div>
+                                <div className="font-bold break-all">{blog.blogName}</div>
                                 <FollowButton/>
                             </div>
                             <div className="mb-4">{blog.followers} Followers</div>
-                            <div className="mb-4">{blog.description}</div>
+                            <div className="mb-4 break-words">{blog.description}</div>
                             <ShowcaseUser src={post.author.icon} displayName={post.author.username} alt="icon"/>
                         </div>
                     </div>

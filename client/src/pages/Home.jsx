@@ -45,7 +45,7 @@ export default function Home() {
                 <PageTitle prompt="Top Blogs -Discover Your New Favourite Community!"></PageTitle>
                 <div>
                     {Array.isArray(blogs) && blogs.length !== 0 ? blogs.map(blog => (
-                        <div key={blog.id} onClick={() => navigate(`/${blog.blogSlug}`)}
+                        <div key={blog.id} onClick={() => navigate(`/blogs/${blog.blogSlug}`)}
                              className="block max-w-4xl rounded-lg border border-gray-300 mb-6">
                                 <div className="h-28 w-full overflow-hidden rounded-lg">
                                     <img
@@ -53,7 +53,7 @@ export default function Home() {
                                         className="h-full w-full object-cover" alt="banner"/>
                                 </div>
                                 <div className="rounded-md bg-gray-500 p-3 text-white">
-                                    <div className="text-xl font-bold">{blog.blogName}</div>
+                                    <div className="text-xl font-bold break-words">{blog.blogName}</div>
                                     <div className="flex items-center my-2">
                                         <ShowcaseUser src={blog.owner.icon} displayName={blog.owner.username} alt="icon"/>
                                         <div className="text-xs opacity-70">{blog.followers} Followers</div>

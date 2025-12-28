@@ -39,7 +39,7 @@ export default function HeaderBar() {
                 </div>
                 <SearchBar/>
 
-                <div className="mr-2 sm:mr-5 text-gray-300 flex items-center min-w-[120px]">
+                <div className="mr-2 sm:mr-5 text-gray-300 flex items-center">
                     {loading && (
                         <div className="w-24 h-6 bg-gray-700 rounded animate-pulse"></div>
                     )}
