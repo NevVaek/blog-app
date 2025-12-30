@@ -219,6 +219,12 @@ export async function blogWare(mode, req) {
                 return false;
             }
             return result
+        } else if (mode === "rUser") {
+            const result = await blogModel.find({owner: req.user._id}).sort({followers: -1});
+            if (!result) {
+                return false;
+            }
+            return result;
         } else if (mode === "w") {
             try {
                 const nameLengthResult = stringLengthChecker(req.body.blogName, 50, 5, true);

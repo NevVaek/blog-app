@@ -6,6 +6,8 @@ const blogSchema = mongoose.Schema({
     blogName: {type: String, required: true, unique: true, minlength: 5, maxlength: 50, trim: true},
     description: {type: String, maxlength: 1500, required: false},
     followers: {type: Number, default: 0, required: true},
+    totalStars: {type: Number, default: 0, required: true},
+    totalVisits: {type: Number, default: 0, required: true},
     banner: {type: String, default: null},
     blogSlug: {type: String, required: true, unique: true},
 }, {timestamps: true});

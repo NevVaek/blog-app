@@ -47,8 +47,7 @@ export async function register(data) {
 }
 
 export async function getCurrentUser() {
-    const res = await fetch(`${API_URL}/account/me`, {credentials: "include",
-    });
+    const res = await fetch(`${API_URL}/account/me`, {credentials: "include"});
 
     if (!res.ok) return null;
     return await res.json();
@@ -83,6 +82,16 @@ export async function checkBlogName(blogName, id=null){
 export async function getBlogs() {
     const res = await fetch(`${API_URL}/blogs`);
     const data = await res.json();
+    if (!res.ok) {
+        return {status: "err", payload: data.message}
+    }
+    return {status: "ok", payload: data.blogs}
+}
+
+export async function getUserBlogs() {
+    const res = await fetch(`${API_URL}/blogs/user`, {credentials: "include"});
+    const data = await res.json();
+    console.log(data)
     if (!res.ok) {
         return {status: "err", payload: data.message}
     }

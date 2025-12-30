@@ -1,6 +1,7 @@
 import {Link} from "react-router-dom";
 import {useState} from "react";
 import StarIcon from "../components/icons/StarIcon.jsx";
+import PlusIcon from "./icons/PlusIcon.jsx";
 
 export function BaseButton({to, onClick, children, className=""}) {
     const Component = to ? Link : "button";
@@ -9,7 +10,7 @@ export function BaseButton({to, onClick, children, className=""}) {
         <Component
             to={to}
             onClick={onClick}
-            className={`border p-1.5 rounded-lg hover:bg-gray-700 ${className}`}
+            className={`border p-1.5 rounded-lg hover:bg-gray-700 ${to && "flex justify-center"} ${className}`}
         >
             {children}
         </Component>
@@ -58,6 +59,16 @@ export function PostLikeButton({num}) {
             </button>
     )
 }
+
+export function CreateBlogButton({size, color}) {
+    return (
+        <Link to="/create/new" className="hover:bg-gray-700 p-3 rounded-lg">
+            <PlusIcon/>
+        </Link>
+    )
+}
+
+
 export function UserMenuButton({prompt, link="", onClick=null, children}) {
     if (link) return (
         <Link to={link} className="flex items-center rounded-md w-48 p-2 font-semibold hover:bg-gray-700">

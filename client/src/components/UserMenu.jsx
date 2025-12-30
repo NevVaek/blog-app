@@ -26,7 +26,7 @@ export default function UserMenu({user}) {
                 <UserMenuButton prompt="Following">
                     <StarIcon size="30"/>
                 </UserMenuButton>
-                <UserMenuButton prompt="Contents" link="/create/new">
+                <UserMenuButton prompt="Contents" link={"/create"}>
                     <ContentsIcon/>
                 </UserMenuButton>
                 <UserMenuButton prompt="Account">

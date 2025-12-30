@@ -117,7 +117,7 @@ export default function Blog() {
                         <div className="rounded-md bg-gray-500 p-3 text-white">
                             <div className="flex items-center justify-between">
                                 <div className="text-3xl mb-3 break-all">{blog.blogName}</div>
-                                <DotMenu mode={owner ? "owner" : "user"} link2={`/create/${blogSlug}/edit`} link3={() => setShowDelete(true)}/>
+                                <DotMenu mode={owner ? "owner" : "blog"} link2={`/create/${blogSlug}/edit`} link3={() => setShowDelete(true)}/>
                             </div>
                             <div className="mb-4 w-full flex items-center justify-between">
                                 <ShowcaseUser src={blog.owner.icon} displayName={blog.owner.username} alt="icon"/>

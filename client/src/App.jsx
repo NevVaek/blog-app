@@ -6,6 +6,8 @@ import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import UpdateBlog from "./pages/UpdateBlog.jsx";
 import CreateBlog from "./pages/CreateBlog.jsx";
+import NotFound from "./pages/NotFound.jsx";
+import UserContent from "./pages/UserContent.jsx";
 
 import ErrorCleaner from "./services/MessageCleaner.jsx";
 
@@ -18,9 +20,11 @@ function App() {
                 <Route path="/register" element={<Signup/>}/>
                 <Route path="/create/new" element={<CreateBlog/>}/>
                 <Route path="/create/:blogSlug/edit" element={<UpdateBlog/>}/>
+                <Route path="/create" element={<UserContent/>}/>
                 <Route path="/blogs/:blogSlug/posts/:postId" element={<Post/>}/>
                 <Route path="/blogs/:blogSlug" element={<Blog/>}/>
                 <Route path="/" element={<Home/>} />
+                <Route path="*" element={<NotFound/>} />
             </Routes>
         </BrowserRouter>
     );

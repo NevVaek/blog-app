@@ -25,6 +25,23 @@ blogRouter.get("/blogs", async (req, res, next) => {
     }
 });
 
+blogRouter.get("/blogs/user", validateToken, async(req, res, next) => {
+    try {
+        const result = await blogWare("rUser", req);
+        if (!result) {
+            return res.status(200).json({
+                count: 0,
+            });
+        }
+        return res.status(200).json({
+            count: result.length,
+            blogs: result,
+        });
+    } catch(err) {
+        next(err);
+    }
+})
+
 blogRouter.get("/:blogSlug/posts", async(req, res, next) => {
     try {
         const blogResult = await blogWare("rOne", req)
