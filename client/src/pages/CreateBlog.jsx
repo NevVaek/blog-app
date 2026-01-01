@@ -1,14 +1,14 @@
 import {useContext, useState, useEffect} from "react";
 import Layout from "../components/Layout.jsx";
 import TextInput, {TextBoxInput, UploadInput} from "../components/TextInput.jsx";
-import {BaseButton, SubmitButton} from "../components/Buttons.jsx";
+import {SubmitButton} from "../components/Buttons.jsx";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import ProgressRing from "../components/ProgressRing.jsx";
 import BlogPreview from "../components/BlogPreview.jsx";
 import {useNavigate} from "react-router-dom";
 import {UtilContext} from "../context/UtilContext.jsx";
 import {AuthContext} from "../context/AuthContext.jsx";
-import {checkBlogName, createBlog} from "../services/api.js";
+import {checkBlogName, createBlog, getUserBlogQuota} from "../services/api.js";
 import {validateFile, validateString} from "../services/validate.js";
 
 export default function CreateBlog() {
@@ -21,21 +21,33 @@ export default function CreateBlog() {
     const [submitting, setSubmitting] = useState(false);
     const [progress, setProgress] = useState(0);
     const {setErrMessage, setSuccessMessage} = useContext(UtilContext);
-    const {user} = useContext(AuthContext);
+    const {user, loading} = useContext(AuthContext);
 
     const MAX_FILE_SIZE = 2 * 1024 * 1024; //2MB
+
+    useEffect(() => {
+        load();
+    }, []);
+
+    async function load() {
+        try {
+            const result = await getUserBlogQuota();
+            const data = result.payload;
+
+            if (data === "reject") {
+                setErrMessage("5 Blog limit already reached for this account.");
+                navigate("/create");
+            }
+        } catch {
+            setErrMessage("Something went wrong. Please try again later")
+        }
+    }
 
     useEffect(() => {
         return () => {
             if (preview) URL.revokeObjectURL(preview); //Must remove the preview Object after use.
         };
     }, [preview]);
-
-    useEffect(() => {
-        if (!user) {
-            navigate("/login");
-        }
-    }, [user]);
 
     async function handleSubmit(e) {
         e.preventDefault();

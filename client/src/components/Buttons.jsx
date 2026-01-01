@@ -1,15 +1,16 @@
-import {Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import {useState} from "react";
 import StarIcon from "../components/icons/StarIcon.jsx";
 import PlusIcon from "./icons/PlusIcon.jsx";
 
-export function BaseButton({to, onClick, children, className=""}) {
+export function BaseButton({to, onClick, children, className="", state}) {
     const Component = to ? Link : "button";
 
     return (
         <Component
             to={to}
             onClick={onClick}
+            state={state}
             className={`border p-1.5 rounded-lg hover:bg-gray-700 ${to && "flex justify-center"} ${className}`}
         >
             {children}
@@ -18,8 +19,10 @@ export function BaseButton({to, onClick, children, className=""}) {
 }
 
 export function LoginButton({className}) {
+    const location = useLocation();
+
     return (
-        <BaseButton to="/login" className={className}>
+        <BaseButton to="/login" state={{from: location}} className={className}>
             Login
         </BaseButton>
     );
@@ -60,10 +63,10 @@ export function PostLikeButton({num}) {
     )
 }
 
-export function CreateBlogButton({size, color}) {
+export function CreateBlogButton({size, color, className}) {
     return (
-        <Link to="/create/new" className="hover:bg-gray-700 p-3 rounded-lg">
-            <PlusIcon/>
+        <Link to="/create/new" className={`hover:bg-gray-700 p-3 rounded-lg ${className}`}>
+            <PlusIcon size={size} color={color}/>
         </Link>
     )
 }

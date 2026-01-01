@@ -1,6 +1,7 @@
 import {useContext, useState, useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import {AuthContext} from "../context/AuthContext.jsx";
+import { UtilContext } from "../context/UtilContext.jsx";
 import {register, checkUsername} from "../services/api.js"
 
 import TextInput from "../components/TextInput.jsx";
@@ -9,6 +10,7 @@ import {ErrorMessage} from "../components/Messages.jsx";
 
 export default function Signup() {
     const {user} = useContext(AuthContext);
+    const {setSuccessMessage} = useContext(UtilContext);
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -51,6 +53,7 @@ export default function Signup() {
 
             if (result.status === "ok") {
                 if (result.payload === true) {
+                    setSuccessMessage("Sign up successful. Please log in to start using your account")
                     navigate("/");
                 }
             } else if (result.status === "err") {

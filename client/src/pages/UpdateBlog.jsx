@@ -17,7 +17,7 @@ export default function UpdateBlog() {
     const {blogSlug} = useParams();
     const navigate = useNavigate();
     const [blog, setBlog] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [pageLoading, setPageLoading] = useState(true);
     const [name, setName] = useState("");
     const [desc, setDesc] = useState("");
     const [banner, setBanner] = useState(null);
@@ -39,12 +39,6 @@ export default function UpdateBlog() {
             if (preview) URL.revokeObjectURL(preview); //Must remove the preview Object after use.
         };
     }, [preview]);
-
-    useEffect(() => {
-        if (!user) {
-            navigate("/login");
-        }
-    }, [user]);
 
     async function load() {
         try {
@@ -68,7 +62,7 @@ export default function UpdateBlog() {
         } catch {
             setErrMessage("Something went wrong. Please try again later")
         } finally {
-            setLoading(false);
+            setPageLoading(false);
         }
     }
 
@@ -132,7 +126,7 @@ export default function UpdateBlog() {
         setPreview(file ? URL.createObjectURL(file) : null);      // Maybe this is needed no more?
     }
 
-    if (loading || !user || !blog) return (     // This "loading" scene must come first. For the scenes to get loaded in the right order.
+    if (pageLoading || !user || !blog) return (     // This "loading" scene must come first. For the scenes to get loaded in the right order.
         <Layout>
             <div><LoadingSpinner/></div>
         </Layout>

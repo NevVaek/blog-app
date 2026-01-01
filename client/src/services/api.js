@@ -91,11 +91,21 @@ export async function getBlogs() {
 export async function getUserBlogs() {
     const res = await fetch(`${API_URL}/blogs/user`, {credentials: "include"});
     const data = await res.json();
-    console.log(data)
+
     if (!res.ok) {
         return {status: "err", payload: data.message}
     }
     return {status: "ok", payload: data.blogs}
+}
+
+export async function getUserBlogQuota() {
+    const res = await fetch(`${API_URL}/blogs/user/blog-quota`, {credentials: "include"});
+    const data = await res.json();
+
+    if (!res.ok) {
+        return {status: "err", payload: data.message}
+    }
+    return {status: "ok", payload: data.status}
 }
 
 export async function getBlog(blogSlug) {
@@ -122,7 +132,6 @@ export async function getPost(blogSlug, postId){
         return {status: "err", payload: res.status.toString()};
     }
     const resData = await res.json();
-    console.log(resData)
     return {status: "ok", payload: resData}
 }
 

@@ -227,6 +227,16 @@ export async function blogWare(mode, req) {
             return result;
         } else if (mode === "w") {
             try {
+                const quotaCheck = await checkBlogCount(req.user._id);
+                if (!quotaCheck) {
+                    throw {
+                        name: "ValidationError",
+                        errors: {
+                            blog: {message: "5 Blog limit already reached for this account."}
+                        }
+                    }
+                }
+
                 const nameLengthResult = stringLengthChecker(req.body.blogName, 50, 5, true);
                 if (nameLengthResult !== true) {
                     let message = "";
@@ -442,6 +452,16 @@ async function searchBlogNames(mode, name) {
         } else {
             throw new Error("Unknown mode");
         }
+    } catch (err) {
+        throw err
+    }
+}
+
+export async function checkBlogCount(id) {  //Returns true if under quota false if over
+    try {
+        const count = await blogModel.countDocuments({owner: id});
+        return count < 5
+
     } catch (err) {
         throw err
     }

@@ -10,17 +10,22 @@ import NotFound from "./pages/NotFound.jsx";
 import UserContent from "./pages/UserContent.jsx";
 
 import ErrorCleaner from "./services/MessageCleaner.jsx";
+import RequireAuth, {RequireGuest} from "./services/RequiredAuth.jsx";
 
 function App() {
     return (
         <BrowserRouter>
             <ErrorCleaner/>
             <Routes>
-                <Route path="/login" element={<Login/>}/>
-                <Route path="/register" element={<Signup/>}/>
-                <Route path="/create/new" element={<CreateBlog/>}/>
-                <Route path="/create/:blogSlug/edit" element={<UpdateBlog/>}/>
-                <Route path="/create" element={<UserContent/>}/>
+                <Route element={<RequireGuest/>}>
+                    <Route path="/login" element={<Login/>}/>
+                    <Route path="/register" element={<Signup/>}/>
+                </Route>
+                <Route element={<RequireAuth/>}>
+                    <Route path="/create/new" element={<CreateBlog/>}/>
+                    <Route path="/create/:blogSlug/edit" element={<UpdateBlog/>}/>
+                    <Route path="/create" element={<UserContent/>}/>
+                </Route>
                 <Route path="/blogs/:blogSlug/posts/:postId" element={<Post/>}/>
                 <Route path="/blogs/:blogSlug" element={<Blog/>}/>
                 <Route path="/" element={<Home/>} />

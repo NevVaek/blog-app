@@ -8,6 +8,7 @@ export const AuthContext = createContext();
 export function AuthProvider({children}) {
     const {setSuccessMessage, setErrMessage} = useContext(UtilContext);
     const [user, setUser] = useState(null);
+    const [initial, setInitial] = useState(false);
     const [loading, setLoading] = useState(true);
     const logoutUser = useLogoutUser();
 
@@ -29,10 +30,12 @@ export function AuthProvider({children}) {
 
     const login = async (credentials) => {
         try {
+            setInitial(true);
             const userData = await loginUser(credentials);
 
             if (userData.status === "ok") {
                 setUser(userData.payload.user);
+                setSuccessMessage("Logged in successfully");
                 return true;
             } else if (userData.status === "err") {
                 setUser(null);
@@ -55,7 +58,7 @@ export function AuthProvider({children}) {
     }
 
     return (
-        <AuthContext.Provider value={{user, setUser, loading, login, logout}}>
+        <AuthContext.Provider value={{user, setUser, loading, initial, setInitial, login, logout}}>
             {children}
         </AuthContext.Provider>
     );

@@ -46,9 +46,11 @@ export function FullPageNoContent({mode, owner}) {
     return (
         <div className=" bg-gray-900 pt-2 pl-3 text-gray-300 min-h-full">
             <div className="w-full h-80 flex justify-center items-center font-bold text-2xl">
-                {mode === "blog" && "WELP, it's PITCH BLACK! Come back later or create your own blogs here."}
+                {mode === "blog" && !owner && "WELP, it's PITCH BLACK! Come back later or create your own blogs here."}
+                {mode === "blog" && owner && "Nothing is more exciting than a blank canvas. Create your own blogs here."}
                 {mode === "post" && !owner && "Hello, anybody home..? Come back later, they might be home by then."}
                 {mode === "post" && owner && "Your room looks empty! Why don't you add some furnitures and lighten things up? Add posts here."}
+                {mode === "err" && "Oops something broke. Refresh the page or try again later"}
             </div>
         </div>
     )

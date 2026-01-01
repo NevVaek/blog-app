@@ -1,5 +1,5 @@
 import {useContext, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import {AuthContext} from "../context/AuthContext.jsx";
 
 import TextInput from "../components/TextInput.jsx"
@@ -8,12 +8,14 @@ import {SubmitButton} from "../components/Buttons.jsx";
 
 
 export default function Login() {
-    const {login} = useContext(AuthContext);
+    const {login, setInitial} = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const from = location.state?.from?.pathname || "/";
 
 
     async function handleSubmit(e) {
@@ -29,7 +31,7 @@ export default function Login() {
             });
 
             if (result === true) {
-                navigate("/");
+                navigate(from, { replace: true });
             } else {
                 setError(result);
             }

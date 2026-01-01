@@ -1,6 +1,6 @@
 import {Router} from "express";
 import {validateToken} from "../helpers/tokenHelper.js";
-import {postWare, blogWare} from "../helpers/postHelper.js";
+import {postWare, blogWare, checkBlogCount} from "../helpers/postHelper.js";
 import {permissionChecker} from"../helpers/authHelper.js";
 import {uploadBanner, uploadPostImages} from "../helpers/uploadHelper.js";
 
@@ -38,6 +38,22 @@ blogRouter.get("/blogs/user", validateToken, async(req, res, next) => {
             blogs: result,
         });
     } catch(err) {
+        next(err);
+    }
+});
+
+blogRouter.get("/blogs/user/blog-quota", validateToken, async(req, res, next) => {
+    try {
+        const result = await checkBlogCount(req.user._id);
+        if (!result) {
+            return res.status(200).json({
+                status:"reject"
+            });
+        }
+        return res.status(200).json({
+            status: "ok"
+        });
+    } catch (err) {
         next(err);
     }
 })

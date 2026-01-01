@@ -4,7 +4,7 @@ import {useContext, useEffect, useState} from "react";
 import {UtilContext} from "../context/UtilContext.jsx";
 import {AuthContext} from "../context/AuthContext.jsx";
 import {useNavigate} from "react-router-dom";
-import {deleteBlog, getUserBlogs} from "../services/api.js";
+import {deleteBlog, getUserBlogs, getUserBlogQuota} from "../services/api.js";
 import HomeSkeleton from "../components/skeletons/HomeSkeleton.jsx";
 import {CreateBlogButton, BaseButton} from "../components/Buttons.jsx";
 import DotMenu from "../components/DotMenu.jsx";
@@ -18,8 +18,10 @@ export default function UserContent() {
     const {loading} = useContext(AuthContext);
     const navigate = useNavigate();
     const [showDelete, setShowDelete] = useState(false);
+    const [showCreate, setShowCreate] = useState(true);
     const [deleteObj, setDeleteObj] = useState(null)
     const [deleting, setDeleting] = useState(false);
+    const [errored, setErrored] = useState(false);
 
     useEffect(() => {
         load();
@@ -31,11 +33,19 @@ export default function UserContent() {
 
             if (result.status === "ok") {
                 setBlogs(result.payload);
+
+                const checkResult = await getUserBlogQuota();
+                const data = checkResult.payload;
+                if ( data === "reject") {
+                    setShowCreate(false);
+                }
             } else if (result.status === "err") {
+                setErrored(true);
                 throw new Error(result.payload);
             }
 
         } catch {
+            setErrored(true);
             setErrMessage("Something went wrong. Please try again later")
         } finally {
             setContentLoading(false);
@@ -52,7 +62,7 @@ export default function UserContent() {
             setBlogs(prev =>
                 prev.filter(blog => blog.blogSlug !== deleteObj)
             );
-
+            setShowCreate(true);
             setSuccessMessage("Blog successfully deleted");
         } catch (err) {
             setErrMessage(err);
@@ -70,7 +80,7 @@ export default function UserContent() {
            <div className="mx-auto max-w-[70rem]">
                 <PageTitle prompt="Your Contents"></PageTitle>
                 <div>
-                    <div className="text-xl max-w-5xl mb-5 flex items-center justify-between">Blogs <CreateBlogButton/></div>
+                    <div className="text-xl max-w-5xl mb-5 flex items-center justify-between">Blogs {showCreate && <CreateBlogButton/>}</div>
                     {Array.isArray(blogs) && blogs.length !== 0 ? blogs.map(blog => (
                         <div key={blog.id}
                              className="block md:flex max-w-5xl rounded-lg border border-gray-300 mb-6">
@@ -102,7 +112,7 @@ export default function UserContent() {
                                     </div>
                                 </div>
                         </div>
-                    )) : <div><FullPageNoContent mode="blog"/></div>}
+                    )) : <div><FullPageNoContent mode={errored ? "err" : "blog"} owner={true}/></div>}
                 </div>
                <DeleteConfirmation open={showDelete} title="Delete Blog?" message="This action cannot be reversed" loading={deleting} onConfirm={() => handleDelete(deleteObj)} onCancel={() => setShowDelete(false)}/>
             </div>

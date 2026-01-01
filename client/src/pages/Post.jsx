@@ -30,7 +30,7 @@ export default function Post() {
     },[blogSlug, postId]);
 
     useEffect(() => {
-        if (user && blog && (user.id === blog.owner.id || user.id === blog.author.id)) {
+        if (!loading && user && blog && (user.id === blog.owner.id || user.id === post.author.id)) {
             setOwner(true);
         }
     }, [user, blog, post]);
