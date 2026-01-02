@@ -54,7 +54,6 @@ export default function CreateBlog() {
         if (submitting) return;
 
         setSubmitting(true);
-        setErrMessage(null);
 
         try {
             if (!name) {

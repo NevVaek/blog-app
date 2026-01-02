@@ -54,6 +54,7 @@ export function AuthProvider({children}) {
             return;
         }
         setUser(null);
+        setInitial(true);
         setSuccessMessage("Logged out successfully");
     }
 

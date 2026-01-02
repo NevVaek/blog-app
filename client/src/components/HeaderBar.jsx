@@ -2,14 +2,14 @@ import {AuthContext} from "../context/AuthContext.jsx";
 import {UtilContext} from "../context/UtilContext.jsx";
 import {useContext, useState, useRef, useEffect} from "react";
 import SearchBar from "./Searchbar.jsx";
-import {DefaultErrorMessage, DefaultSuccessMessage} from "./Messages.jsx";
+import {DefaultErrorMessage, DefaultSuccessMessage, DefaultMessage} from "./Messages.jsx";
 import {LoginButton, SignupButton} from "./Buttons.jsx";
 import {Link} from "react-router-dom";
 import UserMenu from "./UserMenu.jsx";
 
 export default function HeaderBar() {
     const {user, loading} = useContext(AuthContext);
-    const {errMessage, successMessage} = useContext(UtilContext);
+    const {messages} = useContext(UtilContext);
     const [showUserMenu, setShowUserMenu] = useState(false);
     const menuRef = useRef(null);
 
@@ -61,12 +61,14 @@ export default function HeaderBar() {
                     )}
                 </div>
             </div>
-            {errMessage && (
-              <DefaultErrorMessage err={errMessage}/>
-            )}
-            {successMessage && (
-                <DefaultSuccessMessage msg={successMessage}/>
-            )}
+            <div className="fixed top-[64px] left-0 w-full z-50">
+                {
+                    messages.map(msg => (
+                        <DefaultMessage msg={msg}/>
+                    ))
+                }
+            </div>
+
         </>
     );
 

@@ -8,6 +8,19 @@ export function ErrorMessage({err}) {
     )
 }
 
+export function DefaultMessage({msg}) {
+    if (msg.text === null) return
+
+    return (
+        <div
+            key={msg.id}
+            className={`mx-auto max-w-4xl my-1 rounded px-4 py-2 text-white
+            ${msg.type === "success" ? "bg-green-600" : "bg-red-600"}`}>
+            {msg.text}
+        </div>
+    )
+}
+
 export function DefaultErrorMessage({err}) {
     return (
         <div className="absolute w-full bg-red-500 p-0.5 pl-3">

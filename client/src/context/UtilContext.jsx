@@ -3,23 +3,38 @@ import {createContext, useEffect, useState} from "react";
 export const UtilContext = createContext();
 
 export function UtilProvider({children}) {
-    const [errMessage, setErrMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
+    const [messages, setMessages] = useState([]);
 
-    useEffect(() => {
-    if (errMessage) {
-        const timer = setTimeout(() => setErrMessage(null), 3000);
-        return () => clearTimeout(timer);
+
+    function setSuccessMessage(msg) {
+        const id = crypto.randomUUID();
+        const data = {
+            id: id,
+            type: "success",
+            text: msg
         }
-    if (successMessage) {
-        const timer = setTimeout(() => setSuccessMessage(null), 3000);
-        return () => clearTimeout(timer);
+
+        setMessages(prev => [...prev, data]);
+
+        setTimeout(() => {
+            setMessages(prev => prev.filter(m => m.id !== id));}, 3000);
     }
 
-    }, [errMessage, successMessage]);
+    function setErrMessage(msg) {
+        const id = crypto.randomUUID();
+        const data = {
+            id: id,
+            type: "error",
+            text: msg
+        }
+
+        setMessages(prev => [...prev, data]);
+        setTimeout(() => {
+            setMessages(prev => prev.filter(m => m.id !== id));}, 3000);
+    }
 
     return (
-        <UtilContext.Provider value={{errMessage, setErrMessage, successMessage, setSuccessMessage}}>
+        <UtilContext.Provider value={{setErrMessage, setSuccessMessage, messages}}>
             {children}
         </UtilContext.Provider>
     );

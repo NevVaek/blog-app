@@ -6,7 +6,7 @@ import LoadingSpinner from "../components/LoadingSpinner.jsx";
 
 
 export default function RequireAuth() {
-    const {user, loading} = useContext(AuthContext);
+    const {user, loading, initial} = useContext(AuthContext);
     const location = useLocation();
 
     if (loading) {
@@ -14,6 +14,12 @@ export default function RequireAuth() {
     }
 
     if (!loading && !user) {
+        if (initial) {
+            return (
+                <Navigate to="/"/>
+            )
+        }
+
         return (
             <Navigate to="/login" replace state={{from: location}}/>
         );
@@ -30,7 +36,7 @@ export function RequireGuest() {
         if (!loading && user && !initial) {
             setErrMessage("You are already logged in");
         }
-    }, [loading, user, setErrMessage]);
+    }, [loading, user]);
 
     if (loading) return <LoadingSpinner/>
 

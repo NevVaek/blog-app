@@ -11,7 +11,6 @@ import {UtilContext} from "../context/UtilContext.jsx";
 import {AuthContext} from "../context/AuthContext.jsx";
 import {getBlog, checkBlogName, updateBlog} from "../services/api.js";
 import {validateFile, validateString} from "../services/validate.js";
-import {ShowcaseUser} from "../components/Displays.jsx";
 
 export default function UpdateBlog() {
     const {blogSlug} = useParams();
@@ -70,13 +69,12 @@ export default function UpdateBlog() {
         e.preventDefault();
         if (submitting) return;
         setSubmitting(true);
-        setErrMessage(null);
-
-        if (!name) {
-            return setErrMessage("Blog name is required");
-        }
 
         try {
+             if (!name) {
+                return setErrMessage("Blog name is required");
+            }
+
             if (!ok && name !== blog.blogName) {
                 if (!validateString(name)) {
                 return setErrMessage("Blog name should only contain letters, numbers, spaces, underscores, and hyphens")
