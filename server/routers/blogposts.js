@@ -3,6 +3,7 @@ import {validateToken} from "../helpers/tokenHelper.js";
 import {postWare, blogWare, checkBlogCount} from "../helpers/postHelper.js";
 import {permissionChecker} from"../helpers/authHelper.js";
 import {uploadBanner, uploadPostImages} from "../helpers/uploadHelper.js";
+import multer from "multer";
 
 
 const blogRouter = Router();
@@ -127,7 +128,8 @@ blogRouter.post("/:blogSlug/posts/new", validateToken, permissionChecker("blog")
 
         if (result.status === "ok") {
             return res.status(201).json({
-                message: "Post successful"
+                message: "Post successful",
+                postId: result.data
             });
         } else if (result.status === "err") {
             if (result.code === 400) {

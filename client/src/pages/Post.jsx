@@ -38,6 +38,7 @@ export default function Post() {
     async function load() {
         try {
             const result = await getPost(blogSlug, postId);
+            console.log(result);
 
             if (result.status === "ok") {
                 setBlog(result.payload.blog);
@@ -115,12 +116,12 @@ export default function Post() {
                 </div>
                 <div className="border w-80 pb-3 rounded-lg bg-black hidden md:block">
                     <div>
-                        <div className="h-20 w-70 m-2 overflow-hidden rounded-lg">
+                        <div className="h-20 w-70 m-2 overflow-hidden rounded-lg" onClick={() => navigate(`/blogs/${blog.blogSlug}`)}>
                             <img src={blog.banner ? blog.banner : "/src/assets/sample.jpg"} className="h-full w-full object-cover bg-gray-600" alt="banner"/>
                         </div>
                         <div className="px-3">
                             <div className="flex items-center justify-between mt-5">
-                                <div className="font-bold break-all">{blog.blogName}</div>
+                                <div className="font-bold break-all" onClick={() => navigate(`/blogs/${blog.blogSlug}`)}>{blog.blogName}</div>
                                 <FollowButton/>
                             </div>
                             <div className="mb-4">{blog.followers} Followers</div>

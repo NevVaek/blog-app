@@ -42,12 +42,13 @@ export default function Home() {
     return (
         <Layout>
             <div className="mx-auto max-w-[70rem]">
-                <PageTitle prompt="Top Blogs -Discover Your New Favourite Community!"></PageTitle>
+                <PageTitle prompt="Top Blogs -Discover Your New Favourite Community!"/>
                 <div>
                     {Array.isArray(blogs) && blogs.length !== 0 ? blogs.map(blog => (
                         <div key={blog.id} onClick={() => navigate(`/blogs/${blog.blogSlug}`)}
                              className="block max-w-4xl rounded-lg border border-gray-300 mb-6">
                                 <div className="h-28 w-full overflow-hidden rounded-lg">
+
                                     <img
                                         src={blog.banner}
                                         className="h-full w-full object-cover" alt="banner"/>

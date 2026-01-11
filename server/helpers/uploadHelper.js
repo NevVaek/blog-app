@@ -1,7 +1,7 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-
+const maxSize = 2 * 1024 * 1024;
 
 function makeStorage(subfolder) {
     return multer.diskStorage({
@@ -19,15 +19,14 @@ function makeStorage(subfolder) {
 }
 
 const fileFilter = (req, file, cb) => {
-    const allowed = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
-    if (allowed.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error("Only jpeg, png, jpg, webp"), false);
+
+    if (!file.mimetype.startsWith("image/")) {
+        cb(new Error("Only image files are allowed"));
     }
+    cb(null, true);
 };
 
 
-export const uploadIcon = multer({storage: makeStorage("icons"), fileFilter});
-export const uploadBanner = multer({storage: makeStorage("banners"), fileFilter});
-export const uploadPostImages = multer({storage: makeStorage("posts"), fileFilter});
+export const uploadIcon = multer({storage: makeStorage("icons"), fileFilter, limits: { fileSize: maxSize }});
+export const uploadBanner = multer({storage: makeStorage("banners"), fileFilter, limits: { fileSize: maxSize }});
+export const uploadPostImages = multer({storage: makeStorage("posts"), fileFilter, limits: { fileSize: maxSize }});

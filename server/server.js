@@ -8,6 +8,7 @@ import authRouter from "./routers/authentication.js";
 import blogRouter from "./routers/blogposts.js";
 import accountRouter from "./routers/accounts.js";
 import migrateBlogSlugs from "./scripts/migrateBlogSlugs.js";
+import multer from "multer";
 
 const app = express();
 app.use(express.json());
@@ -31,7 +32,16 @@ app.use("/uploads", express.static("./uploads"));
 
 app.use((err, req, res, next) => {
      console.error(err.stack);
-    return res.status(500).json({
+
+     if (err instanceof multer.MulterError) {   //Error handling for uploadHelper script
+            if (err.message === "File too large") {
+                return res.status(400).json({
+                    message: "Image should be under 2MB"
+                });
+            }
+        }
+
+    return res.status(500).json({       // Handles all other errors that weren't caught
         message: "Internal server error. Please try again later"
     });
 });

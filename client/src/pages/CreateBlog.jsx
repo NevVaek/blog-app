@@ -85,7 +85,7 @@ export default function CreateBlog() {
                 formData.append("banner", banner);
             }
 
-            const submitRes = await createBlog(formData, setProgress); // FFIX THIISS
+            const submitRes = await createBlog(formData, setProgress);
 
             if (submitRes.status === "ok") {       //URL needs to include the blogSlug of the new blog name.
                 setSuccessMessage("Blog successfully created");
@@ -106,7 +106,7 @@ export default function CreateBlog() {
         setPreview(file ? URL.createObjectURL(file) : null);      // Maybe this is needed no more?
     }
 
-    if (!user) return (     // This "loading" scene must come first. For the scenes to get loaded in the right order.
+    if (loading && !user) return (     // This "loading" scene must come first. For the scenes to get loaded in the right order.
         <Layout>
             <div><LoadingSpinner/></div>
         </Layout>
@@ -123,7 +123,7 @@ export default function CreateBlog() {
                         }
                     }/>
                     <TextBoxInput rows="5" cols="40" label="Description" name="description" maxL={1500} currentL={desc.length} placeHolder={"Welcome to my blog!"} onChange={(e) => setDesc(e.target.value)}/>
-                    <UploadInput accept="image/*" label="Banner" onChange={handleFileChange} maxFileSize={MAX_FILE_SIZE}/>
+                    <UploadInput mode="blog" accept="image/*" label="Banner" onChange={handleFileChange} maxFileSize={MAX_FILE_SIZE}/>
                     <div className="flex items-center">
                         <SubmitButton prompt="Create" disable={submitting}/>
                         {submitting && <ProgressRing progress={progress} />}

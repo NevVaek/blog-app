@@ -2,25 +2,30 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function ImageCarousel({ images = [] }) {
+    const [expand, setExpand] = useState(false);
     const [index, setIndex] = useState(0);
 
     if (!images.length) return null;
 
-    const prev = () => {
+    const prev = (e) => {
+        e.stopPropagation();
         setIndex((index - 1 + images.length) % images.length);
     };
 
-    const next = () => {
+    const next = (e) => {
+        e.stopPropagation();
         setIndex((index + 1) % images.length);
     };
 
     return (
-        <div className="relative w-full max-w-xl mx-auto">
+        <div>
+        <div className="relative w-full max-w-3xl h-[35rem] mx-auto flex flex-col justify-center items-center bg-black rounded-xl" onClick={(e) => {e.stopPropagation(); setExpand(true)}}>
             {/* Image */}
             <img
                 src={images[index]}
                 alt={`image-${index}`}
-                className="w-full object-contain rounded-xl"
+                className="w-full h-full object-contain rounded-xl"
+                loading="lazy"
             />
 
             {/* Left arrow */}
@@ -54,11 +59,28 @@ export default function ImageCarousel({ images = [] }) {
                             className={`w-3 h-3 rounded-full ${
                                 i === index ? "bg-gray-900" : "bg-gray-400"
                             }`}
-                            onClick={() => setIndex(i)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIndex(i);}
+                            }
                         />
                     ))}
                 </div>
             )}
         </div>
+        {expand && (
+            <div
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+                onClick={(e) => {e.stopPropagation(); setExpand(false)} }
+            >
+            <img
+            src={images[index]}
+            alt="Full image"
+            className="max-w-[90vw] max-h-[90vh] object-contain cursor-zoom-out"
+            />
+        </div>
+        )}
+            </div>
+
     );
 }

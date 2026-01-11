@@ -152,6 +152,21 @@ export async function createBlog(formData, setState) {
     }
 }
 
+export async function createPost(blogSlug, formData, setState) {
+    try {
+        const res = await axios.post(`${API_URL}/${blogSlug}/posts/new`, formData, {
+            withCredentials: true,
+            onUploadProgress: (e) => {
+                const percent = Math.round((e.loaded * 100) / e.total);
+                setState(percent);
+            }
+        });
+        return {status: "ok", payload: res.data.postId}
+    } catch(err) {
+        return {status: "err", payload: err.response.data.message}
+    }
+}
+
 export async function updateBlog(blogSlug, formData, setState) {
     //const res = await fetch(`${API_URL}/create/update/${blogSlug}`, {
     //    method: "PATCH",

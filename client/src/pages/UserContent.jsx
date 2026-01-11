@@ -95,7 +95,7 @@ export default function UserContent() {
                                             <div className="text-xl font-bold break-words" onClick={() => navigate(`/blogs/${blog.blogSlug}`)}>{blog.blogName} </div>
                                             <div className="sm:hidden w-48 flex opacity-70 ml-3">Created <div className="text-xm ml-3">{formatDate(blog.createdAt) || 0}</div></div>
                                         </div>
-                                        <DotMenu mode="ownerMenu" className="block md:hidden" link1={`/blogs/${blog.blogSlug}`} link2={`/create/${blog.blogSlug}/edit`} link3={() => {setShowDelete(true); setDeleteObj(blog.blogSlug)} }/>
+                                        <DotMenu mode="ownerMenu" className="block md:hidden" link1={`/create/${blog.blogSlug}/posts/new`} link2={`/create/${blog.blogSlug}/edit`} link3={() => {setShowDelete(true); setDeleteObj(blog.blogSlug)} }/>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
@@ -105,7 +105,7 @@ export default function UserContent() {
                                             <div className="hidden sm:flex px-3 text-lg border-r-1 flex-col items-center">Created<div className="text-xl">{formatDate(blog.createdAt) || 0}</div></div>
                                         </div>
                                         <div className="hidden md:flex w-24 h-36 flex-col justify-between">
-                                            <BaseButton to={`/blogs/${blog.blogSlug}`} onClick={(e) => e.stopPropagation()}>Post</BaseButton>
+                                            <BaseButton to={`/create/${blog.blogSlug}/posts/new`} onClick={(e) => e.stopPropagation()}>New Post</BaseButton>
                                             <BaseButton to={`/create/${blog.blogSlug}/edit`} onClick={(e) => e.stopPropagation()}>Edit</BaseButton>
                                             <BaseButton className="text-red-500 border-red-500" onClick={() => {setShowDelete(true); setDeleteObj(blog.blogSlug)}}>Delete</BaseButton>
                                         </div>

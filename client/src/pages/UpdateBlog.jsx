@@ -150,7 +150,7 @@ export default function UpdateBlog() {
                         }
                     }/>
                     <TextBoxInput rows="5" cols="40" label="Description" name="description" value={desc || ""} maxL={1500} currentL={desc.length} onChange={(e) => setDesc(e.target.value)}/>
-                    <UploadInput accept="image/*" label="Banner" onChange={handleFileChange} maxFileSize={MAX_FILE_SIZE}/>
+                    <UploadInput mode="blog" accept="image/*" label="Banner" onChange={handleFileChange} maxFileSize={MAX_FILE_SIZE}/>
                     <div className="flex items-center">
                         <SubmitButton prompt="Update" disable={submitting}/>
                         {submitting && <ProgressRing progress={progress} />}

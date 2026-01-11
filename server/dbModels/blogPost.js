@@ -17,7 +17,7 @@ const postSchema = mongoose.Schema({
     author: {type: mongoose.Schema.Types.ObjectId, ref:"User", required: true},
     blogId: {type: String, required: true},
     title: {type: String, required: true, maxlength: 200},
-    body: {type: String, required: true, maxlength: 50000},
+    body: {type: String, required: true, maxlength: 40000},
     images: [{type: String}],
     stars: {type: Number, default: 0, required: true}
 }, {timestamps: true});

@@ -47,7 +47,7 @@ export async function postWare(mode, req) {
                     }
                 }
                 const normalizedBody = typeof req.body.body === "string" ? normalizeString(req.body.body) : "";
-                const bodyLengthResult = stringLengthChecker(normalizedBody, 50000);
+                const bodyLengthResult = stringLengthChecker(normalizedBody, 40000);
                 if (bodyLengthResult !== true) {
                     throw {name: "ValidationError",
                         errors: {
@@ -65,9 +65,9 @@ export async function postWare(mode, req) {
                         }
                     }
                 }
-
+                const newPostId = uuidv4();
                 const newPost = new postModel({
-                    id: uuidv4(),
+                    id: newPostId,
                     author: req.user._id,
                     blogId: blogId,
                     title: req.body.title,
@@ -77,7 +77,7 @@ export async function postWare(mode, req) {
                     ) : []
                 });
                 await newPost.save();
-                return {status: "ok"};
+                return {status: "ok", data: newPostId};
             } catch (err) {
                 if (err.name === "ValidationError") {
                     const firstError = Object.values(err.errors)[0].message;
@@ -133,7 +133,7 @@ export async function postWare(mode, req) {
 
                 if (updatePostFields.body) {
                     updatePostFields.body = typeof updatePostFields.body ? normalizeString(updatePostFields.body) : "";
-                    const bodyLengthResult = stringLengthChecker(updatePostFields.body, 50000);
+                    const bodyLengthResult = stringLengthChecker(updatePostFields.body, 40000);
                     if (bodyLengthResult !== true) {
                         throw {name: "ValidationError",
                             errors: {

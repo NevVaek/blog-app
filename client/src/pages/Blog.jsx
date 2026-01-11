@@ -13,6 +13,7 @@ import {UtilContext} from "../context/UtilContext.jsx";
 import {FollowButton} from "../components/Buttons.jsx";
 import DotMenu from "../components/DotMenu.jsx";
 import ExpandableDesc from "../components/ExpandableDesc.jsx";
+import ImageCarousel from "../components/ImageCarousel.jsx";
 
 export default function Blog() {
     const {blogSlug} = useParams();
@@ -140,9 +141,8 @@ export default function Blog() {
                                             <PostLikeButton num={post.stars}/>
                                         </div>
                                         {post.images && post.images.length > 0 ? (
-                                            <div className="flex justify-center">
-                                                <img src={post.images[0]} alt="image1"/>
-                                            </div>) : (<div className="break-words">{post.body}</div>)
+                                            <ImageCarousel images={post.images}/>
+                                            ) : (<div className="break-words">{post.body}</div>)
                                         }
                                         <hr className="m-3 ml-1"/>
                                     </div>

@@ -56,7 +56,7 @@ export default function DotMenu({mode, link1, link2, link3, className}) {
                     {mode === "ownerMenu" && (
                         <>
                             <Link to={link1} className="block w-full text-left px-3 py-2 hover:bg-gray-700">
-                                Posts
+                                New Posts
                             </Link>
                             <Link to={link2} className="block w-full text-left px-3 py-2 hover:bg-gray-700">
                                 Edit
