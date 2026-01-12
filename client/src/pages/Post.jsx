@@ -38,7 +38,6 @@ export default function Post() {
     async function load() {
         try {
             const result = await getPost(blogSlug, postId);
-            console.log(result);
 
             if (result.status === "ok") {
                 setBlog(result.payload.blog);
@@ -94,7 +93,7 @@ export default function Post() {
                     </div>
                     <FollowButton/>
                 </div>
-                <div className="px-2 block max-w-4xl min-w-max border">
+                <div className="px-2 block max-w-4xl">
                     <div className="overflow-hidden rounded-lg">
                         <div className="min-h-44">
                             <div className="flex items-center justify-between">
@@ -109,12 +108,12 @@ export default function Post() {
                                 <ImageCarousel images={post.images}/>
                             )}
                             {post.body && (
-                                <div className="break-words">{post.body}</div>
+                                <div className="mt-6 max-w-3xl mx-auto break-words whitespace-pre-wrap">{post.body}</div>
                             )}
                         </div>
                     </div>
                 </div>
-                <div className="border w-80 pb-3 rounded-lg bg-black hidden md:block">
+                <div className="w-80 pb-3 rounded-lg bg-black hidden md:block">
                     <div>
                         <div className="h-20 w-70 m-2 overflow-hidden rounded-lg" onClick={() => navigate(`/blogs/${blog.blogSlug}`)}>
                             <img src={blog.banner ? blog.banner : "/src/assets/sample.jpg"} className="h-full w-full object-cover bg-gray-600" alt="banner"/>
@@ -125,7 +124,7 @@ export default function Post() {
                                 <FollowButton/>
                             </div>
                             <div className="mb-4">{blog.followers} Followers</div>
-                            <div className="mb-4 break-words">{blog.description}</div>
+                            <div className="mb-4 break-words whitespace-pre-wrap">{blog.description}</div>
                             <ShowcaseUser src={post.author.icon} displayName={post.author.username} alt="icon"/>
                         </div>
                     </div>

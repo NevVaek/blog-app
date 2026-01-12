@@ -18,7 +18,6 @@ export default function CreatePost() {
     const [body, setBody] = useState("");
     const [images, setImages] = useState([]);
     const [ok, setOk] = useState(true);
-    const [previews, setPreviews] = useState([]);
     const [pageLoading, setPageLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -61,12 +60,12 @@ export default function CreatePost() {
 
         try {
             if (!title) {
-                return setErrMessage("Blog name is required");
+                return setErrMessage("Post name is required");
             }
 
             if (!ok) {      //QUESTIONABLE CHECK LATER IF THIS IS REALLY NEEDED
-                if (!validateString(title)) {
-                return setErrMessage("Blog name should only contain letters, numbers, spaces, underscores, and hyphens")
+                if (title.length > 200) {
+                return setErrMessage("Post title must be under 200 characters")
                 }
                 setOk(true);
             }
@@ -112,7 +111,7 @@ export default function CreatePost() {
         setImages(files);
     }
 
-    if (loading && !user) return (     // This "loading" scene must come first. For the scenes to get loaded in the right order.
+    if ( (loading && !user) || pageLoading) return (     // This "loading" scene must come first. For the scenes to get loaded in the right order.
         <Layout>
             <div><LoadingSpinner/></div>
         </Layout>
@@ -122,7 +121,7 @@ export default function CreatePost() {
         <Layout>
             <div className="mx-auto max-w-[78rem] lg:grid grid-cols-[55rem_minmax(0,4fr)] gap-2">
                 <form onSubmit={handleSubmit} className="p-3">
-                    <TextInput label="Blog Name" value={title || ""} maxL={200} currentL={title.length} placeHolder={"Title"} onChange={(e) => {
+                    <TextInput label="Post Title" value={title || ""} maxL={200} currentL={title.length} placeHolder={"Title"} onChange={(e) => {
                             setTitle(e.target.value);
                             setOk(false);
                         }
