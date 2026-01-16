@@ -130,7 +130,7 @@ export default function Blog() {
                             <ExpandableDesc text={blog.description} lines={3}/>
                         </div>
                         <div>
-                            <PageTitle prompt="Top Posts"/>
+                            <PageTitle prompt="Top Posts" blogSlug={blogSlug} displayB={owner}/>
                             <div>
                                 {Array.isArray(posts) && posts.length !== 0 ? posts.map(post => (
                                     <div onClick={ () => navigate(`/blogs/${blog.blogSlug}/posts/${post.id}`)} key={post.id} className="block m-2 max-w-4xl">

@@ -227,7 +227,7 @@ blogRouter.patch("/create/update/:blogSlug", validateToken, permissionChecker("b
     }
 });
 
-blogRouter.patch("/:blogSlug/posts/:postId/edit", validateToken, permissionChecker("post"), async (req, res, next) => {
+blogRouter.patch("/:blogSlug/posts/:postId/edit", validateToken, permissionChecker("post"), uploadPostImages.array("images", 5), async (req, res, next) => {
     try {
         const result = await postWare("a", req);
         if (result.status === "ok") {
@@ -249,16 +249,6 @@ blogRouter.patch("/:blogSlug/posts/:postId/edit", validateToken, permissionCheck
             }
         } else {
                 throw new Error(`Unknown status value from postHelper.js mode="a" status="${result.status}"`);
-        }
-
-        if (result === "noBlog") {
-            return res.status(404).json({
-                message: `Couldn't find blog. It doesn't exist.`
-            });
-        } else if (result === "noPost") {
-
-        } else if (result === "exceedMax") {
-
         }
     } catch(err) {
         next(err);

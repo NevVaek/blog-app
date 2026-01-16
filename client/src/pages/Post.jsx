@@ -98,7 +98,7 @@ export default function Post() {
                         <div className="min-h-44">
                             <div className="flex items-center justify-between">
                                 <div className="text-2xl mb-2">{post.title}</div>
-                                <DotMenu mode={owner ? "owner" : "user"} link2={`/create/${blogSlug}/edit`} link3={() => setShowDelete(true)}/>
+                                <DotMenu mode={owner ? "owner" : "user"} link2={`/create/${blogSlug}/posts/${postId}/edit`} link3={() => setShowDelete(true)}/>
                             </div>
                             <div className="flex items-center justify-between mb-3">
                                 <ShowcaseUser src={post.author.icon} displayName={post.author.username} alt="icon"/>

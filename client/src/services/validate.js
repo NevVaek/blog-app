@@ -1,16 +1,10 @@
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export function validateFile(file, maxSize) {
-    const fileSizeInMB = maxSize / (1024 * 1024);
   if (!ALLOWED_TYPES.includes(file.type)) {
     return "Only JPG, JPEG, PNG, or WEBP images allowed.";
   }
-
-  if (file.size > maxSize) {
-    return `File must be under ${fileSizeInMB}MB.`;
-  }
-
-  return true;
+  return file.size < maxSize;
 }
 
 export function validateString(name) {

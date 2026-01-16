@@ -79,6 +79,10 @@ export async function postWare(mode, req) {
                 await newPost.save();
                 return {status: "ok", data: newPostId};
             } catch (err) {
+                if (req.files) {
+                    deleteWare("post", req.files)
+                }
+
                 if (err.name === "ValidationError") {
                     const firstError = Object.values(err.errors)[0].message;
                     return {status: "err", code: 400, message: firstError}
@@ -104,20 +108,31 @@ export async function postWare(mode, req) {
                 const updatePostFields = {}     //Creates container
 
                 for (const key of allowed) {        //Adds the new values to the container
+                    console.log(req.body.title)
                     if (req.body[key] !== undefined) updatePostFields[key] = req.body[key];
                 }
-                const toDelete = req.body.deletedImages ? JSON.parse(req.body.deletedImages) : null;
-
-                if (toDelete) {
-                    updatePostFields.images = post.images.filter(img => !toDelete.includes(img));
+                let toDelete = req.body.deletedImages ? req.body.deletedImages : [];
+                if (!Array.isArray(toDelete)) {
+                    toDelete = [toDelete]
                 }
+                console.log(req.body.deletedImages || "Yep nope for deleted")
 
-                if (req.files && req.files.length > 0) {
+                updatePostFields.images = post.images.filter(img => !toDelete.includes(img));   // ADD old images that were not deleted
 
+                if (req.files && req.files.length > 0) {    // If the user added new images, add those too
                     const newImages = req.files.map(file =>
                     `${req.protocol}://${req.get("host")}/uploads/images/posts/${file.filename}`
                     );
+                    console.log(updatePostFields.images)
                     updatePostFields.images = [...updatePostFields.images, ...newImages];
+                }
+
+                if (updatePostFields.images && updatePostFields.images.length > 5) {    //Check the total number of images (include old ones)
+                    throw {name: "ValidationError",
+                        errors: {
+                            images: {message: "Uploaded file count exceeds allowed limit"}
+                        }
+                    }
                 }
 
                 if (updatePostFields.title) {
@@ -132,21 +147,13 @@ export async function postWare(mode, req) {
                 }
 
                 if (updatePostFields.body) {
-                    updatePostFields.body = typeof updatePostFields.body ? normalizeString(updatePostFields.body) : "";
+                    updatePostFields.body = typeof updatePostFields.body === "string" ? normalizeString(updatePostFields.body) : "";
                     const bodyLengthResult = stringLengthChecker(updatePostFields.body, 40000);
                     if (bodyLengthResult !== true) {
                         throw {name: "ValidationError",
                             errors: {
-                                title: {message: "Post description cannot be longer than 50000 characters"}
+                                title: {message: "Post description cannot be longer than 40000 characters"}
                             }
-                        }
-                    }
-                }
-
-                if (updatePostFields.images.length > 5) {
-                    throw {name: "ValidationError",
-                        errors: {
-                            images: {message: "Uploaded file count exceeds allowed limit"}
                         }
                     }
                 }
@@ -163,12 +170,15 @@ export async function postWare(mode, req) {
                 }
 
                 if (toDelete) {
+                    console.log(toDelete)
                     await deleteWare("post", toDelete);
                 }
 
                 return {status: "ok"};
             } catch (err) {
-
+                if (req.files) {
+                    deleteWare("post", req.files);
+                }
                 if (err.name === "ValidationError") {
                     const firstError = Object.values(err.errors)[0].message;
                     return {status: "err", code: 400, message: firstError}
@@ -284,6 +294,10 @@ export async function blogWare(mode, req) {
                 await newBlog.save();
                 return {status: "ok", data: newBlogSlug};
             } catch (err) {
+                if (req.file) {
+                    deleteWare("blog", req.file);
+                }
+
                 if (err.code === 11000) {
                     return {status: "err", code: 409, message: "Blog name already exists"} //returns when dupe user
                 }
@@ -390,6 +404,9 @@ export async function blogWare(mode, req) {
                 return {status: "ok", data: updateFields.blogName ? updateFields.blogSlug : true};
 
             } catch (err) {
+                if (req.file) {
+                    deleteWare("blog", req.file);
+                }
                 if (err.code === 11000) {
                     return {status: "err", code: 409, message: "Blog name already taken"}
                 }

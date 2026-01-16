@@ -79,8 +79,8 @@ export default function CreateBlog() {
 
             if (banner) {
                 const validate = validateFile(banner, MAX_FILE_SIZE);
-                if (validate !== true) {
-                    return setErrMessage(validate);
+                if (!validate) {
+                    return setErrMessage(`Banner image must be under ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
                 }
                 formData.append("banner", banner);
             }

@@ -45,15 +45,24 @@ export function TextBoxInput({label, name, cols, rows, value, onChange, placeHol
     );
 }
 
-export function UploadInput({mode, label, name, value, onChange, accept, maxFileSize, images}) {
+export function UploadInput({mode, label, name, value, onChange, accept, maxFileSize, initial}) {
     const [file, setFile] = useState(mode === "post" ? [] : null);
     const [filename, setFileName] = useState("");
     const [fileNum, setFileNum] = useState(0);
     const [previews, setPreviews] = useState([]);
-    const [previewBin, setPreviewBin] = useState([]);
+    const [first, setFirst] = useState(true);
     const fileInputRef = useRef(null);
     const {setErrMessage} = useContext(UtilContext);
     const maxFileNum = 5;
+    const fileSizeInMB = maxFileSize / (1024 * 1024);
+
+    useEffect(() => {
+        if (initial) {
+            setFile(initial);
+            setPreviews(initial);
+            setFileNum(initial.length);
+        }
+    }, []);
 
     useEffect(() => {
         return () => {
@@ -62,24 +71,32 @@ export function UploadInput({mode, label, name, value, onChange, accept, maxFile
     }, [previews]);
 
     useEffect(() => {
-        onChange(file)
+        if (!first) {
+            onChange(file);
+        }
     }, [file]);
 
     function handleFileAdd(e) {
         if (!e) return;
+        setFirst(false);
 
         if (mode === "blog") {
             const selected = e.target.files[0];
 
             const validate = validateFile(selected, maxFileSize);
-            if (validate !== true) {
-                return setErrMessage(validate);
+            if (!validate) {
+                return setErrMessage(`File must be under ${fileSizeInMB}MB.`);
             }
 
             setFile(selected);
             setFileName(selected.name);
         } else if (mode === "post") {
-            const selected = Array.from(e.target.files);
+            const imgBasket = Array.from(e.target.files);
+            const selected = imgBasket.filter((img) => validateFile(img, maxFileSize));
+
+            if (imgBasket.length !== selected.length) {
+                setErrMessage(`Images must each be under ${fileSizeInMB}MB. ${imgBasket.length - selected.length} file(s) rejected`);
+            }
 
             if (selected.length > maxFileNum - fileNum) {
                 selected.splice(maxFileNum - fileNum)
@@ -89,7 +106,6 @@ export function UploadInput({mode, label, name, value, onChange, accept, maxFile
             setFile(prev => [...prev, ...selected]);
             const prevURL = selected.map(e => URL.createObjectURL(e));
             setPreviews(prev =>  [...prev,  ...prevURL]);
-            setPreviewBin(prev => [...prev, ...prevURL]);
             setFileNum(prev => prev + selected.length);
         }
     }
@@ -97,6 +113,7 @@ export function UploadInput({mode, label, name, value, onChange, accept, maxFile
     function clearImage(e,  num) {
         e.stopPropagation();
         e.preventDefault();
+        setFirst(false);
         if (mode === "blog") {
             onChange(null);
             setFile(null);

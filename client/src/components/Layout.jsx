@@ -1,5 +1,5 @@
 import HeaderBar from "./HeaderBar.jsx";
-
+import {CreatePostButton} from "./Buttons.jsx";
 
 export default function Layout({children}) {
     return (
@@ -12,11 +12,14 @@ export default function Layout({children}) {
     );
 }
 
-export function PageTitle({prompt}) {
+export function PageTitle({prompt, blogSlug, displayB}) {
     return (
-        <div className="max-w-[70rem]">
-            <h1 className="m-2 text-lg">{prompt}</h1>
-            <hr className="m-4 ml-1"/>
+        <div className="max-w-[58rem]">
+            <div className="flex justify-between items-center h-14">
+                <h1 className="m-2 text-lg">{prompt}</h1>
+                {displayB && prompt === "Top Posts" && <CreatePostButton blogSlug={blogSlug}/>}
+            </div>
+            <hr className="m-1 ml-1"/>
         </div>
     );
 }

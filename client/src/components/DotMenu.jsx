@@ -35,7 +35,7 @@ export default function DotMenu({mode, link1, link2, link3, className}) {
                 <div
                     className="absolute right-0 mt-2 w-32 rounded-md bg-gray-800 border border-gray-600 shadow-lg z-50"
             onClick={(e) => e.stopPropagation()}>
-                    {mode === "blog" && (
+                    {(mode === "blog" || mode==="user") && (
                         <Link to={link1} className="block w-full text-left px-3 py-2 hover:bg-gray-700">
                             Share
                         </Link>

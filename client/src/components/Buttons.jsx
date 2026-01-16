@@ -71,6 +71,15 @@ export function CreateBlogButton({size, color, className}) {
     )
 }
 
+export function CreatePostButton({size, color, blogSlug, className}) {
+    return (
+        <Link to={`/create/${blogSlug}/posts/new`} className={`hover:bg-gray-700 p-2 rounded-lg flex items-center ${className}`}>
+            <PlusIcon size={size} color={color}/>
+            <div className="ml-2">Create New  Post</div>
+        </Link>
+    )
+}
+
 
 export function UserMenuButton({prompt, link="", onClick=null, children}) {
     if (link) return (

@@ -197,6 +197,21 @@ export async function updateBlog(blogSlug, formData, setState) {
     }
 }
 
+export async function updatePost(blogSlug, postId, formData, setState) {
+    try {
+         await axios.patch(`${API_URL}/${blogSlug}/posts/${postId}/edit`, formData, {
+            withCredentials: true,
+            onUploadProgress: (e) => {
+                const percent = Math.round((e.loaded * 100) / e.total);
+                setState(percent);
+            }
+        });
+        return {status: "ok"}
+    } catch(err) {
+        return {status: "err", payload: err.response.data.message}
+    }
+}
+
 export async function deleteBlog(blogSlug) {
     const res = await fetch(`${API_URL}/create/delete/${blogSlug}`, {
         method: "DELETE",

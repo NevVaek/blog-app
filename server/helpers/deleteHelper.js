@@ -5,10 +5,10 @@ import path from "path";
 export default async function deleteWare(mode, paths) {
     try {
         if (mode === "banner") {
-            if (path.dirname(paths).includes("defaults")) return true;  // Checks if the parent directory contains the word "defaults"
+            if (!paths.filename && path.dirname(paths).includes("defaults")) return true;  // Checks if the parent directory contains the word "defaults"
 
             const localPath = path.join(
-                    "uploads/images/banners/", path.basename(paths)     // Convert the filepaths to local dir path
+                    "uploads/images/banners/", paths.filename ? paths.filename : path.basename(paths)     // Convert the filepaths to local dir path
                 );
 
             await fs.unlink(localPath, (err) => {
@@ -27,7 +27,7 @@ export default async function deleteWare(mode, paths) {
             await Promise.allSettled(
                 paths.map(filePath => {
                     const localPath = path.join(                // Convert the filepaths to local dir path
-                    "uploads/images/posts/", path.basename(filePath));
+                    "uploads/images/posts/", filePath.filename ? filePath.filename : path.basename(filePath));
                     fs.unlink(localPath, (err) => {
                         if (err) {
                             console.error(`Failed to delete file for mode: ${mode}, file: ${localPath}`);

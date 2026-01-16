@@ -57,9 +57,11 @@ export default function UpdateBlog() {
                 } else {
                     setErrMessage("Something went wrong. Please try again later");
                 }
+                navigate("/create");
             }
         } catch {
             setErrMessage("Something went wrong. Please try again later")
+            navigate("/create");
         } finally {
             setPageLoading(false);
         }
@@ -95,8 +97,8 @@ export default function UpdateBlog() {
             formData.append("description", desc);
             if (banner) {
                 const validate = validateFile(banner, MAX_FILE_SIZE);
-                if (validate !== true) {
-                    return setErrMessage(validate);
+                if (!validate) {
+                    return setErrMessage(`Banner image must be under ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
                 }
                 formData.append("banner", banner);
             }

@@ -9,6 +9,7 @@ import CreateBlog from "./pages/CreateBlog.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import UserContent from "./pages/UserContent.jsx";
 import CreatePost from "./pages/CreatePost.jsx";
+import UpdatePost from "./pages/UpdatePost.jsx";
 
 import ErrorCleaner from "./services/MessageCleaner.jsx";
 import RequireAuth, {RequireGuest} from "./services/RequiredAuth.jsx";
@@ -26,6 +27,7 @@ function App() {
                     <Route path="/create/new" element={<CreateBlog/>}/>
                     <Route path="/create/:blogSlug/posts/new" element={<CreatePost/>}/>
                     <Route path="/create/:blogSlug/edit" element={<UpdateBlog/>}/>
+                    <Route path="/create/:blogSlug/posts/:postId/edit" element={<UpdatePost/>}/>
                     <Route path="/create" element={<UserContent/>}/>
                 </Route>
                 <Route path="/blogs/:blogSlug/posts/:postId" element={<Post/>}/>
