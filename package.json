@@ -1,0 +1,24 @@
+{
+  "name": "blog-app",
+  "version": "1.0.0",
+  "description": "A functional likeness of the social media site Reddit built with Vite+React.js (frontend) and Node.js Express (backend) for practice and learning purposes. Started from November 2025 and currently work in progress.\r The project aims to replicate fundamental functions of Reddit and other traditional blog platforms like 4chan.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NevVaek/blog-app.git"
+  },
+  "private": true,
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NevVaek/blog-app/issues"
+  },
+  "homepage": "https://github.com/NevVaek/blog-app#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
